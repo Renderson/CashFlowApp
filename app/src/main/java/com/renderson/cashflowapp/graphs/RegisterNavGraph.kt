@@ -13,7 +13,7 @@ fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
     ) {
         composable(route = DetailsScreen.Register.route) {
             RegisterScreen(
-                name = DetailsScreen.Register.route,
+                name = DetailsScreen.Register.title,
                 onClick = {
                     navController.popBackStack()
                 }
@@ -22,6 +22,6 @@ fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
     }
 }
 
-sealed class DetailsScreen(val route: String) {
-    object Register : DetailsScreen(route = "REGISTER")
+sealed class DetailsScreen(val title: String, val route: String) {
+    object Register : DetailsScreen(title = "Registro", route = "register")
 }

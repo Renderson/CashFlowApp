@@ -21,14 +21,14 @@ fun BottomNavGraph(navController: NavHostController) {
     ) {
         composable(route = BottomNavItem.Home.route) {
             HomeScreen(
-                BottomNavItem.Home.route
+                BottomNavItem.Home.title
             ) {
                 navController.navigate(Graph.DETAILS)
             }
         }
         composable(route = BottomNavItem.Extract.route) {
             ExtractScreen(
-                BottomNavItem.Extract.route
+                BottomNavItem.Extract.title
             ) { }
         }
     }
