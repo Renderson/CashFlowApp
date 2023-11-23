@@ -67,10 +67,13 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
 
+    // Extend Icons
+    implementation("androidx.compose.material:material-icons-extended")
+
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
 
     testImplementation("junit:junit:4.13.2")
