@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -14,8 +15,11 @@ import com.renderson.cashflowapp.screens.ExtractScreen
 import com.renderson.cashflowapp.screens.HomeScreen
 
 @Composable
-fun BottomNavGraph(navController: NavHostController) {
+fun BottomNavGraph(
+    modifier: Modifier,
+    navController: NavHostController) {
     NavHost(
+        modifier = modifier,
         navController = navController,
         startDestination = BottomNavItem.Home.route
     ) {
