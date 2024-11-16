@@ -8,16 +8,21 @@ import androidx.compose.material.icons.outlined.List
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.renderson.cashflowapp.screens.ExtractScreen
 import com.renderson.cashflowapp.screens.HomeScreen
+import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
 @Composable
 fun BottomNavGraph(
     modifier: Modifier,
     navController: NavHostController) {
+
+    val viewModel: CashFlowViewModel = hiltViewModel()
+
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -25,14 +30,16 @@ fun BottomNavGraph(
     ) {
         composable(route = BottomNavItem.Home.route) {
             HomeScreen(
-                BottomNavItem.Home.title
+                viewModel = viewModel,
+                name = BottomNavItem.Home.title
             ) {
                 navController.navigate(Graph.DETAILS)
             }
         }
         composable(route = BottomNavItem.Extract.route) {
             ExtractScreen(
-                BottomNavItem.Extract.title
+                viewModel = viewModel,
+                name = BottomNavItem.Extract.title
             ) { }
         }
     }
