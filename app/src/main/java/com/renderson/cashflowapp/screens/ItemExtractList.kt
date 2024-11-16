@@ -1,33 +1,28 @@
 package com.renderson.cashflowapp.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.outlined.CallMade
 import androidx.compose.material.icons.outlined.CallReceived
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.renderson.cashflowapp.enums.TypeExtract
-import com.renderson.cashflowapp.model.Extract
+import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.model.Transaction
 
 @Composable
-fun ItemExtractList(item: Extract) {
+fun ItemExtractList(item: Transaction) {
     val icon = if (item.type != TypeExtract.DEPOSIT) Icons.Outlined.CallMade else Icons.Outlined.CallReceived
     val tint = if (item.type != TypeExtract.DEPOSIT) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     Row(
@@ -66,12 +61,12 @@ fun ItemExtractList(item: Extract) {
                 modifier = Modifier.padding(start = 8.dp)
             ) {
                 Text(
-                    text = item.title ?: "",
+                    text = item.description,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     style = MaterialTheme.typography.titleLarge,
                 )
                 Text(
-                    text = item.cash ?: "",
+                    text = item.amount.formatForBrazilianCurrency(),
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -83,5 +78,5 @@ fun ItemExtractList(item: Extract) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewItemExtractList() {
-    ItemExtractList(Extract(cash = "R$ 5.000", description = "Transporte", title = "TESTE", type = TypeExtract.DEPOSIT))
+    ItemExtractList(Transaction(date = "2023-05-15", description = "Roupa", amount = 100.0, type = TypeExtract.DEPOSIT))
 }
