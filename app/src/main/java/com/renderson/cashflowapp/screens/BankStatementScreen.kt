@@ -14,11 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,6 +36,8 @@ import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.formatDate
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
 import com.renderson.cashflowapp.extensions.formatMonthYear
+import com.renderson.cashflowapp.extensions.getCurrentMonthKey
+import com.renderson.cashflowapp.model.Months
 import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
@@ -39,19 +45,45 @@ import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 fun BankStatementScreen(
     viewModel: CashFlowViewModel,
 ) {
-    var selectedMonth by remember { mutableStateOf(viewModel.extract.value?.years?.last()?.months?.last()) }
+    val extract by viewModel.extract.observeAsState()
+    val allMonths = extract?.years?.flatMap { it.months }
+        ?.sortedBy { it.month }
+        .orEmpty()
+    var selectedMonth by remember { mutableStateOf<Months?>(null) }
+    val currentMonthKey = getCurrentMonthKey()
+    val lazyRowState = rememberLazyListState()
+
+    LaunchedEffect(extract) {
+        selectedMonth = if (allMonths.isEmpty()) {
+            null
+        } else {
+            allMonths.find { it.month == selectedMonth?.month }
+                ?: allMonths.find { it.month == currentMonthKey }
+                ?: allMonths.last()
+        }
+    }
+
+    LaunchedEffect(allMonths, selectedMonth) {
+        if (allMonths.isNotEmpty() && selectedMonth != null) {
+            val index = allMonths.indexOfFirst { it.month == selectedMonth?.month }
+            if (index >= 0) {
+                lazyRowState.animateScrollToItem(index)
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         LazyRow(
+            state = lazyRowState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            items(viewModel.extract.value?.years?.flatMap { it.months }.orEmpty()) { month ->
-                MonthTab(month.month, isSelected = month == selectedMonth) {
+            itemsIndexed(allMonths, key = { index, _ -> index }) { _, month ->
+                MonthTab(month.month, isSelected = month.month == selectedMonth?.month) {
                     selectedMonth = month
                 }
             }
@@ -68,14 +100,11 @@ fun BankStatementScreen(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                var total = 0.0
                 var deposit = 0.0
                 var payment = 0.0
                 selectedMonth?.transactions?.forEach {
                     if (it.type == TypeExtract.DEPOSIT) deposit += it.amount
                     if (it.type == TypeExtract.PAYMENT) payment -= it.amount
-                    total = deposit - payment
                 }
                 Text(
                     text = "Movimentos período, ${selectedMonth?.month?.formatMonthYear()}",
@@ -101,7 +130,8 @@ fun BankStatementScreen(
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(selectedMonth?.transactions.orEmpty()) { transaction ->
+            val items = selectedMonth?.transactions?.sortedBy { it.date }
+            items(items.orEmpty()) { transaction ->
                 TransactionItem(transaction)
             }
         }
@@ -135,20 +165,21 @@ fun TransactionItem(transaction: Transaction) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(modifier = Modifier.fillMaxWidth().weight(1f)) {
+        Column(modifier = Modifier.weight(1f, fill = false)) {
             Text(
-                text = transaction.date.formatDate(),
+                text = transaction.description,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Text(
-                text = transaction.description,
+                text = transaction.date.formatDate(),
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodySmall
             )
         }
-        Column {
+        Column(horizontalAlignment = Alignment.End) {
             val type = when (transaction.type) {
                 TypeExtract.DEPOSIT -> "Deposíto"
                 TypeExtract.PAYMENT -> "Pagamento"
@@ -163,82 +194,9 @@ fun TransactionItem(transaction: Transaction) {
             Text(
                 text = type.lowercase(),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.End,
                 style = MaterialTheme.typography.bodySmall
             )
         }
     }
 }
-
-/*@Preview(showBackground = true)
-@Composable
-fun PreviewBankStatementScreen() {
-    val data = DataExtract(
-        years = listOf(
-            Years(
-                years = "2023",
-                months = listOf(
-                    Months(
-                        month = "2023-06-15",
-                        transaction = listOf(
-                            Transaction(
-                                date = "2023-06-15",
-                                description = "Mp *Revanche 1/2",
-                                amount = 1.000
-                            ),
-                            Transaction(
-                                date = "2023-06-20",
-                                description = "Mp *Revanche 1/2",
-                                amount = 100.0
-                            )
-                        )
-                    ),
-                    Months(
-                        month = "2023-07-23",
-                        transaction = listOf(
-                            Transaction(
-                                date = "2023-07-23",
-                                description = "Mp *Revanche 1/2",
-                                amount = 100.0
-                            )
-                        )
-                    ),
-                    Months(
-                        month = "2023-08-15",
-                        transaction = listOf(
-                            Transaction(
-                                date = "2023-08-15",
-                                description = "Mp *C&A",
-                                amount = 5000.0
-                            )
-                        )
-                    )
-                )
-            ),
-            Years(
-                years = "2024",
-                months = listOf(
-                    Months(
-                        month = "2024-08-15",
-                        transaction = listOf(
-                            Transaction(
-                                date = "2024-08-15",
-                                description = "Mp *Revanche 1/2",
-                                amount = 100.0
-                            ),
-                            Transaction(
-                                date = "2024-08-20",
-                                description = "Mp *Revanche 1/2",
-                                amount = 1000.0
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    )
-
-    BankStatementScreen(
-        extract = data
-    )
-}*/

@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CallMade
-import androidx.compose.material.icons.outlined.CallReceived
+import androidx.compose.material.icons.automirrored.outlined.CallMade
+import androidx.compose.material.icons.automirrored.outlined.CallReceived
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,7 +23,7 @@ import com.renderson.cashflowapp.model.Transaction
 
 @Composable
 fun ItemExtractList(item: Transaction) {
-    val icon = if (item.type != TypeExtract.DEPOSIT) Icons.Outlined.CallMade else Icons.Outlined.CallReceived
+    val icon = if (item.type != TypeExtract.DEPOSIT) Icons.AutoMirrored.Outlined.CallMade else Icons.AutoMirrored.Outlined.CallReceived
     val tint = if (item.type != TypeExtract.DEPOSIT) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     Row(
         modifier = Modifier

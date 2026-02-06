@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -59,9 +60,13 @@ fun CashFlowTextField(
         visualTransformation = { visualTransformationGetType(inputType.type, it) },
         isError = isError,
         colors = colors,
-        onValueChange = {
-            if (it.length <= maxLength) {
-                input = it
+        onValueChange = { newValue ->
+            val filtered = when (inputType.type) {
+                TypeInputEnum.CURRENCY.type -> filterCurrencyInput(newValue)
+                else -> newValue.take(maxLength)
+            }
+            if (filtered.length <= maxLength) {
+                input = filtered
                 if (input.isEmpty()) {
                     isError = false
                     onInputChange(input)
@@ -81,10 +86,8 @@ fun CashFlowTextField(
 }
 
 private fun validateInput(inputType: String, input: String): Pair<Boolean, String> {
-    return when(inputType) {
-        //TypeInputEnum.EMAIL.type -> Pair(input.isEmailValid(), input)
-        //TypeInputEnum.CPF.type -> Pair(StringUtil.isCPF(input), input)
-        //TypeInputEnum.NAME.type -> Pair(input.isNameValid(), input)
+    return when (inputType) {
+        TypeInputEnum.CURRENCY.type -> Pair(true, input)
         TypeInputEnum.PESO.type -> Pair(true, input)
         TypeInputEnum.ALTURA.type -> Pair(true, input)
         else -> Pair(true, input)
@@ -92,24 +95,10 @@ private fun validateInput(inputType: String, input: String): Pair<Boolean, Strin
 }
 
 private fun visualTransformationGetType(type: String, input: AnnotatedString): TransformedText {
-    /*return when (type) {
-        TypeInputEnum.CPF.type -> {
-            visualTransformationToCPF(input)
-        }
-        TypeInputEnum.PESO.type -> {
-            visualTransformationToWeight(input)
-        }
-        TypeInputEnum.ALTURA.type -> {
-            visualTransformationToHeight(input)
-        }
-        TypeInputEnum.DATA.type -> {
-            visualTransformationToBrDate(input)
-        }
-        else -> {
-            visualTransformationToNormal(input)
-        }
-    }*/
-    return visualTransformationToNormal(input)
+    return when (type) {
+        TypeInputEnum.CURRENCY.type -> BrazilianCurrencyTransformation().filter(AnnotatedString(input.text))
+        else -> visualTransformationToNormal(input)
+    }
 }
 
 fun visualTransformationToNormal(input: AnnotatedString): TransformedText {
@@ -124,6 +113,82 @@ fun visualTransformationToNormal(input: AnnotatedString): TransformedText {
     return TransformedText(annotatedString, offsetTranslator)
 }
 
+private fun filterCurrencyInput(input: String): String {
+    var hasComma = false
+    var digitsAfterComma = 0
+    return buildString {
+        for (c in input) {
+            when {
+                c in '0'..'9' -> {
+                    if (hasComma) {
+                        if (digitsAfterComma < 2) {
+                            append(c)
+                            digitsAfterComma++
+                        }
+                    } else {
+                        append(c)
+                    }
+                }
+                c == ',' && !hasComma -> {
+                    append(c)
+                    hasComma = true
+                }
+            }
+        }
+    }
+}
+
+class BrazilianCurrencyTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val raw = text.text
+        val commaIndex = raw.indexOf(',')
+        val intStr = if (commaIndex < 0) raw.filter { it in '0'..'9' } else raw.take(commaIndex).filter { it in '0'..'9' }
+        val decStr = if (commaIndex < 0) "00" else raw.drop(commaIndex + 1).filter { it in '0'..'9' }.take(2).padEnd(2, '0')
+        val intDisplay = if (intStr.isEmpty()) "0" else intStr.reversed().chunked(3).joinToString(".").reversed()
+        val display = "R$ $intDisplay,$decStr"
+
+        val origToTrans = IntArray(raw.length + 1)
+        val transToOrig = IntArray(display.length + 1)
+        origToTrans[0] = 0
+        transToOrig[0] = 0
+        var t = 3
+        for (i in 1..display.length) transToOrig[i] = 0
+        var o = 0
+        for (i in intStr.indices) {
+            if (i > 0 && (intStr.length - i) % 3 == 0) {
+                t++
+                transToOrig[t] = o
+            }
+            o++
+            t++
+            if (o <= raw.length) origToTrans[o] = t
+            if (t <= display.length) transToOrig[t] = o
+        }
+        if (commaIndex >= 0) {
+            o++
+            t++
+            if (o <= raw.length) origToTrans[o] = t
+            if (t <= display.length) transToOrig[t] = o
+            for (i in decStr.indices) {
+                o++
+                t++
+                if (o <= raw.length) origToTrans[o] = t
+                if (t <= display.length) transToOrig[t] = o
+            }
+        }
+        for (i in o..raw.length) origToTrans[i] = t
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int =
+                origToTrans.getOrElse(offset.coerceIn(0, raw.length)) { display.length }
+
+            override fun transformedToOriginal(offset: Int): Int =
+                transToOrig.getOrElse(offset.coerceIn(0, display.length)) { raw.length }
+        }
+        return TransformedText(AnnotatedString(display), offsetMapping)
+    }
+}
+
 enum class TypeInputEnum(val type: String) {
     EMAIL("EMAIL"),
     CPF("CPF"),
@@ -131,6 +196,7 @@ enum class TypeInputEnum(val type: String) {
     PESO("PESO"),
     ALTURA("ALTURA"),
     DATA("DATA"),
+    CURRENCY("CURRENCY"),
     NONE("")
 }
 

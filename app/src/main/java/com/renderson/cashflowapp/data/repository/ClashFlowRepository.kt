@@ -48,6 +48,36 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
         }
     }
 
+    suspend fun addTransaction(date: String, description: String, type: TypeExtract, amount: Double) {
+        if (date.length < 10) return
+        val yearStr = date.substring(0, 4)
+        val monthStr = "${date.substring(0, 7)}-01"
+        database.withTransaction {
+            var yearEntity = db.getYearByYear(yearStr)
+            if (yearEntity == null) {
+                db.insertYear(YearEntity(yearId = 0, year = yearStr))
+                yearEntity = db.getYearByYear(yearStr) ?: return@withTransaction
+            }
+            val yearId = yearEntity.yearId
+            var monthEntity = db.getMonthByYearIdAndMonth(yearId, monthStr)
+            if (monthEntity == null) {
+                db.insertMonth(MonthEntity(monthId = 0, month = monthStr, yearId = yearId))
+                monthEntity = db.getMonthByYearIdAndMonth(yearId, monthStr) ?: return@withTransaction
+            }
+            val monthId = monthEntity.monthId
+            db.insertTransaction(
+                TransactionEntity(
+                    transactionId = 0,
+                    date = date,
+                    description = description,
+                    type = type.name,
+                    amount = amount,
+                    monthId = monthId
+                )
+            )
+        }
+    }
+
     fun getExtract(): Flow<DataExtract> {
         return db.getAllData().map { yearsWithMonths ->
             DataExtract(

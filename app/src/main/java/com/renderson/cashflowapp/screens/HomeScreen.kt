@@ -28,16 +28,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.getCurrentMonthKey
 import com.renderson.cashflowapp.model.CardItems
 import com.renderson.cashflowapp.util.components.CashFlowAppBar
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
@@ -47,21 +46,31 @@ import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 @Composable
 fun HomeScreen(
     name: String,
-    viewModel: CashFlowViewModel,
-    onClick: () -> Unit
+    viewModel: CashFlowViewModel
 ) {
+    val extract by viewModel.extract.observeAsState()
+    val currentMonthKey = getCurrentMonthKey()
+    val currentMonth = extract?.years?.flatMap { it.months }?.find { it.month == currentMonthKey }
+    val currentMonthDeposit = currentMonth?.transactions
+        ?.filter { it.type == TypeExtract.DEPOSIT }
+        ?.sumOf { it.amount } ?: 0.0
+    val currentMonthPayment = currentMonth?.transactions
+        ?.filter { it.type == TypeExtract.PAYMENT }
+        ?.sumOf { it.amount } ?: 0.0
+    val currentMonthBalance = currentMonthDeposit - currentMonthPayment
+    val currentMonthTransactions = currentMonth?.transactions.orEmpty()
 
     val itemsCards = listOf(
         CardItems(
             title = "Total \nEntradas",
             type = TypeExtract.DEPOSIT,
-            total = viewModel.deposit.collectAsState().value,
+            total = currentMonthDeposit,
             icon = Icons.AutoMirrored.Outlined.CallReceived
         ),
         CardItems(
             title = "Total \nSaídas",
             type = TypeExtract.PAYMENT,
-            total = viewModel.payment.collectAsState().value,
+            total = currentMonthPayment,
             icon = Icons.AutoMirrored.Outlined.CallMade
         ),
         CardItems(
@@ -89,7 +98,7 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(top = paddingValues.calculateTopPadding())
             ) {
-                CurrentBalanceComposable(viewModel)
+                CurrentBalanceComposable(balance = currentMonthBalance)
                 LazyRow(
                     modifier = Modifier
                         .padding(all = 8.dp)
@@ -98,6 +107,12 @@ fun HomeScreen(
                         ItemCardList(itemsCards)
                     }
                 }
+                SaldoChart(
+                    transactions = currentMonthTransactions,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                )
                 Spacer(modifier = Modifier.weight(1f))
                 Column(
                     modifier = Modifier.background(
@@ -121,8 +136,7 @@ fun HomeScreen(
                     LazyColumn(
                         modifier = Modifier.padding(all = 8.dp)
                     ) {
-                        val transactions = viewModel.extract.value?.years?.last()?.months?.last()?.transactions.orEmpty()
-                        items(transactions) { transaction ->
+                        items(currentMonthTransactions) { transaction ->
                             ItemExtractList(transaction)
                         }
                     }
@@ -133,7 +147,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun CurrentBalanceComposable(viewModel: CashFlowViewModel) {
+private fun CurrentBalanceComposable(balance: Double) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -151,7 +165,7 @@ private fun CurrentBalanceComposable(viewModel: CashFlowViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 32.dp),
-                text = viewModel.getBalance().formatForBrazilianCurrency(),
+                text = balance.formatForBrazilianCurrency(),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center
@@ -210,13 +224,4 @@ fun ItemCardList(item: CardItems) {
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewHomeScreen() {
-    HomeScreen(
-        viewModel = viewModel(),
-        name = "Home"
-    ) {}
 }
