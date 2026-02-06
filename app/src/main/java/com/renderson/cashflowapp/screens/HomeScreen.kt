@@ -125,19 +125,21 @@ fun HomeScreen(
                         )
                     )
                 ) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp, start = 26.dp),
-                        text = "Atividades recentes",
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    LazyColumn(
-                        modifier = Modifier.padding(all = 8.dp)
-                    ) {
-                        items(currentMonthTransactions) { transaction ->
-                            ItemExtractList(transaction)
+                    if (currentMonthTransactions.isNotEmpty()) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp, start = 26.dp),
+                            text = "Atividades recentes",
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        LazyColumn(
+                            modifier = Modifier.padding(all = 8.dp)
+                        ) {
+                            items(currentMonthTransactions) { transaction ->
+                                ItemExtractList(transaction)
+                            }
                         }
                     }
                 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -32,6 +33,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.formatDate
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
@@ -44,17 +50,19 @@ import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 @Composable
 fun BankStatementScreen(
     viewModel: CashFlowViewModel,
+    onEditTransaction: (Transaction) -> Unit
 ) {
     val extract by viewModel.extract.observeAsState()
     val allMonths = extract?.years?.flatMap { it.months }
         ?.sortedBy { it.month }
         .orEmpty()
+    val hasAnyTransactions = allMonths.any { it.transactions.isNotEmpty() }
     var selectedMonth by remember { mutableStateOf<Months?>(null) }
     val currentMonthKey = getCurrentMonthKey()
     val lazyRowState = rememberLazyListState()
 
     LaunchedEffect(extract) {
-        selectedMonth = if (allMonths.isEmpty()) {
+        selectedMonth = if (allMonths.isEmpty() || !hasAnyTransactions) {
             null
         } else {
             allMonths.find { it.month == selectedMonth?.month }
@@ -63,8 +71,8 @@ fun BankStatementScreen(
         }
     }
 
-    LaunchedEffect(allMonths, selectedMonth) {
-        if (allMonths.isNotEmpty() && selectedMonth != null) {
+    LaunchedEffect(allMonths, selectedMonth, hasAnyTransactions) {
+        if (hasAnyTransactions && selectedMonth != null) {
             val index = allMonths.indexOfFirst { it.month == selectedMonth?.month }
             if (index >= 0) {
                 lazyRowState.animateScrollToItem(index)
@@ -75,66 +83,123 @@ fun BankStatementScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        LazyRow(
-            state = lazyRowState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            itemsIndexed(allMonths, key = { index, _ -> index }) { _, month ->
-                MonthTab(month.month, isSelected = month.month == selectedMonth?.month) {
-                    selectedMonth = month
-                }
-            }
-        }
-        Box(
-            modifier = Modifier
-                .padding(all = 8.dp)
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .clip(shape = RoundedCornerShape(20.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+        if (hasAnyTransactions) {
+            LazyRow(
+                state = lazyRowState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                var deposit = 0.0
-                var payment = 0.0
-                selectedMonth?.transactions?.forEach {
-                    if (it.type == TypeExtract.DEPOSIT) deposit += it.amount
-                    if (it.type == TypeExtract.PAYMENT) payment -= it.amount
+                itemsIndexed(allMonths, key = { index, _ -> index }) { _, month ->
+                    MonthTab(month.month, isSelected = month.month == selectedMonth?.month) {
+                        selectedMonth = month
+                    }
                 }
-                Text(
-                    text = "Movimentos período, ${selectedMonth?.month?.formatMonthYear()}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Total Deposíto ${deposit.formatForBrazilianCurrency()}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-                Text(
-                    text = "Total Pagamentos ${payment.formatForBrazilianCurrency()}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
-                )
             }
         }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            val items = selectedMonth?.transactions?.sortedBy { it.date }
-            items(items.orEmpty()) { transaction ->
-                TransactionItem(transaction)
+        if (hasAnyTransactions && selectedMonth != null) {
+            val month = selectedMonth!!
+            var deposit = 0.0
+            var payment = 0.0
+            month.transactions.forEach {
+                if (it.type == TypeExtract.DEPOSIT) deposit += it.amount
+                if (it.type == TypeExtract.PAYMENT) payment -= it.amount
             }
+            if (month.transactions.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .padding(all = 8.dp)
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .clip(shape = RoundedCornerShape(20.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Movimentos período, ${month.month.formatMonthYear()}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Total Deposíto ${deposit.formatForBrazilianCurrency()}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                        Text(
+                            text = "Total Pagamentos ${payment.formatForBrazilianCurrency()}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val items = month.transactions.sortedBy { it.date }
+                    items(items) { transaction ->
+                        TransactionItem(
+                            transaction = transaction,
+                            onClick = { onEditTransaction(transaction) }
+                        )
+                    }
+                }
+            } else {
+                EmptyStatementContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp)
+                )
+            }
+        } else {
+            EmptyStatementContent(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp)
+            )
         }
+    }
+}
+
+@Composable
+private fun EmptyStatementContent(modifier: Modifier = Modifier) {
+    val composition by rememberLottieComposition(
+        LottieCompositionSpec.Asset("empty_ghost.json")
+    )
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever
+    )
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        LottieAnimation(
+            composition = composition,
+            progress = { progress },
+            modifier = Modifier.size(200.dp)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Nenhum movimento neste período",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Toque em Registros para adicionar\ndepósitos ou pagamentos",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -161,11 +226,15 @@ fun MonthTab(month: String, isSelected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(
+    transaction: Transaction,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(modifier = Modifier.weight(1f, fill = false)) {

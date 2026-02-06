@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +43,7 @@ import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.dateStringToMillis
 import com.renderson.cashflowapp.extensions.getTodayAsString
 import com.renderson.cashflowapp.extensions.millisToDateString
+import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
 import com.renderson.cashflowapp.extensions.parseBrazilianCurrencyToDouble
 import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.util.components.CashFlowAppBar
@@ -55,10 +59,19 @@ fun RegisterScreen(
     name: String,
     onClick: () -> Unit
 ) {
-    var amount by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var dateStr by remember { mutableStateOf(getTodayAsString()) }
-    var selectedType by remember { mutableStateOf<TypeExtract?>(null) }
+    val transactionToEdit by viewModel.transactionToEdit.collectAsState(initial = null)
+    var amount by remember(transactionToEdit?.transactionId) {
+        mutableStateOf(transactionToEdit?.amount?.formatForBrazilianCurrency() ?: "")
+    }
+    var description by remember(transactionToEdit?.transactionId) {
+        mutableStateOf(transactionToEdit?.description ?: "")
+    }
+    var dateStr by remember(transactionToEdit?.transactionId) {
+        mutableStateOf(transactionToEdit?.date ?: getTodayAsString())
+    }
+    var selectedType by remember(transactionToEdit?.transactionId) {
+        mutableStateOf(transactionToEdit?.type)
+    }
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = dateStringToMillis(getTodayAsString()),
@@ -102,7 +115,10 @@ fun RegisterScreen(
             CashFlowAppBar(
                 title = name,
                 colorViews = MaterialTheme.colorScheme.onSurface,
-                onIconBackClick = { onClick.invoke() }
+                onIconBackClick = {
+                    viewModel.clearTransactionToEdit()
+                    onClick.invoke()
+                }
             )
         },
         content = { paddingValues ->
@@ -206,18 +222,46 @@ fun RegisterScreen(
                 Button(
                     onClick = {
                         val type = selectedType ?: return@Button
-                        viewModel.saveTransaction(
-                            date = dateStr,
-                            description = description.trim(),
-                            type = type,
-                            amount = amount.parseBrazilianCurrencyToDouble()
-                        )
+                        val value = amount.parseBrazilianCurrencyToDouble()
+                        if (transactionToEdit != null && transactionToEdit?.transactionId != 0) {
+                            viewModel.updateTransaction(
+                                transactionId = transactionToEdit?.transactionId ?: 0,
+                                date = dateStr,
+                                description = description.trim(),
+                                type = type,
+                                amount = value
+                            )
+                        } else {
+                            viewModel.saveTransaction(
+                                date = dateStr,
+                                description = description.trim(),
+                                type = type,
+                                amount = value
+                            )
+                        }
+                        viewModel.clearTransactionToEdit()
                         onClick.invoke()
                     },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     enabled = isFormValid
                 ) {
                     Text("Salvar")
+                }
+
+                if (transactionToEdit != null && transactionToEdit?.transactionId != 0) {
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.deleteTransaction(transactionToEdit!!.transactionId)
+                            viewModel.clearTransactionToEdit()
+                            onClick.invoke()
+                        },
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("Deletar")
+                    }
                 }
             }
         }

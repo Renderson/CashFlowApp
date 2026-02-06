@@ -18,40 +18,10 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
 
     private val db = database.dataExtractDao()
 
-    suspend fun saveExtract(dataExtract: DataExtract) {
-        database.withTransaction {
-            dataExtract.years.forEach { year ->
-                val yearEntity = YearEntity(yearId = 0, year = year.year)
-                val yearId = db.insertYear(yearEntity)
-
-                year.months.forEach { month ->
-                    val monthEntity = MonthEntity(
-                        monthId = 0,
-                        month = month.month,
-                        yearId = yearId.toInt()
-                    )
-                    val monthId = db.insertMonth(monthEntity)
-
-                    month.transactions.forEach { transaction ->
-                        val transactionEntity = TransactionEntity(
-                            transactionId = 0,
-                            date = transaction.date,
-                            description = transaction.description,
-                            type = transaction.type.name,
-                            amount = transaction.amount,
-                            monthId = monthId.toInt()
-                        )
-                        db.insertTransaction(transactionEntity)
-                    }
-                }
-            }
-        }
-    }
-
     suspend fun addTransaction(date: String, description: String, type: TypeExtract, amount: Double) {
         if (date.length < 10) return
-        val yearStr = date.substring(0, 4)
-        val monthStr = "${date.substring(0, 7)}-01"
+        val yearStr = date.take(4)
+        val monthStr = "${date.take(7)}-01"
         database.withTransaction {
             var yearEntity = db.getYearByYear(yearStr)
             if (yearEntity == null) {
@@ -78,6 +48,47 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
         }
     }
 
+    suspend fun updateTransaction(
+        transactionId: Int,
+        date: String,
+        description: String,
+        type: TypeExtract,
+        amount: Double
+    ) {
+        if (date.length < 10) return
+        database.withTransaction {
+            db.deleteTransaction(transactionId)
+            val yearStr = date.take(4)
+            val monthStr = "${date.take(7)}-01"
+            var yearEntity = db.getYearByYear(yearStr)
+            if (yearEntity == null) {
+                db.insertYear(YearEntity(yearId = 0, year = yearStr))
+                yearEntity = db.getYearByYear(yearStr) ?: return@withTransaction
+            }
+            val yearId = yearEntity.yearId
+            var monthEntity = db.getMonthByYearIdAndMonth(yearId, monthStr)
+            if (monthEntity == null) {
+                db.insertMonth(MonthEntity(monthId = 0, month = monthStr, yearId = yearId))
+                monthEntity = db.getMonthByYearIdAndMonth(yearId, monthStr) ?: return@withTransaction
+            }
+            val monthId = monthEntity.monthId
+            db.insertTransaction(
+                TransactionEntity(
+                    transactionId = 0,
+                    date = date,
+                    description = description,
+                    type = type.name,
+                    amount = amount,
+                    monthId = monthId
+                )
+            )
+        }
+    }
+
+    suspend fun deleteTransaction(transactionId: Int) {
+        db.deleteTransaction(transactionId)
+    }
+
     fun getExtract(): Flow<DataExtract> {
         return db.getAllData().map { yearsWithMonths ->
             DataExtract(
@@ -89,6 +100,7 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
                                 month = monthWithTransactions.month.month,
                                 transactions = monthWithTransactions.transactions.map { transactionEntity ->
                                     Transaction(
+                                        transactionId = transactionEntity.transactionId,
                                         date = transactionEntity.date,
                                         description = transactionEntity.description,
                                         type = TypeExtract.valueOf(transactionEntity.type),

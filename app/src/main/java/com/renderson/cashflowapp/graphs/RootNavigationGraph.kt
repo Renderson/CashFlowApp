@@ -5,9 +5,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.renderson.cashflowapp.screens.MainScreen
+import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
 @Composable
-fun RootNavigationGraph(navController: NavHostController) {
+fun RootNavigationGraph(
+    navController: NavHostController,
+    viewModel: CashFlowViewModel
+) {
     NavHost(
         navController = navController,
         route = Graph.ROOT,
@@ -15,12 +19,18 @@ fun RootNavigationGraph(navController: NavHostController) {
     ) {
         composable(route = Graph.HOME) {
             MainScreen(
-                onClick = {
+                viewModel = viewModel,
+                onFabClick = {
+                    viewModel.clearTransactionToEdit()
+                    navController.navigate(Graph.DETAILS)
+                },
+                onEditTransaction = { transaction ->
+                    viewModel.setTransactionToEdit(transaction)
                     navController.navigate(Graph.DETAILS)
                 }
             )
         }
-        detailsNavGraph(navController = navController)
+        detailsNavGraph(navController = navController, viewModel = viewModel)
     }
 }
 

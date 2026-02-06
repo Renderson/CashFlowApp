@@ -39,6 +39,12 @@ interface DataExtractDao {
     @Query("SELECT * FROM months WHERE yearId = :yearId AND month = :month LIMIT 1")
     suspend fun getMonthByYearIdAndMonth(yearId: Int, month: String): MonthEntity?
 
+    @Query("SELECT * FROM transactions WHERE transactionId = :id LIMIT 1")
+    suspend fun getTransactionById(id: Int): TransactionEntity?
+
+    @Query("DELETE FROM transactions WHERE transactionId = :id")
+    suspend fun deleteTransaction(id: Int)
+
     @Query("SELECT * FROM years")
     fun getAllYears(): Flow<List<YearWithMonths>>
 

@@ -17,6 +17,7 @@ data class Months(
 )
 
 data class Transaction(
+    val transactionId: Int = 0,
     val date: String,
     val description: String,
     val type: TypeExtract,

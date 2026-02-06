@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.renderson.cashflowapp.graphs.RootNavigationGraph
 import com.renderson.cashflowapp.ui.theme.CashFlowAppTheme
+import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,12 +23,15 @@ class MainActivity : ComponentActivity() {
             CashFlowAppTheme(
                 dynamicColor = false
             ) {
-                // A surface container using the 'background' color from the theme
+                val viewModel: CashFlowViewModel = hiltViewModel()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RootNavigationGraph(navController = rememberNavController())
+                    RootNavigationGraph(
+                        navController = rememberNavController(),
+                        viewModel = viewModel
+                    )
                 }
             }
         }

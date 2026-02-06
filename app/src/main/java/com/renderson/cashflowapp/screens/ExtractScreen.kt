@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.util.components.CashFlowAppBar
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
@@ -15,7 +16,8 @@ import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 @Composable
 fun ExtractScreen(
     name: String,
-    viewModel: CashFlowViewModel
+    viewModel: CashFlowViewModel,
+    onEditTransaction: (Transaction) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -32,7 +34,8 @@ fun ExtractScreen(
                     .padding(top = paddingValues.calculateTopPadding())
             ) {
                 BankStatementScreen(
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    onEditTransaction = onEditTransaction
                 )
             }
         }
