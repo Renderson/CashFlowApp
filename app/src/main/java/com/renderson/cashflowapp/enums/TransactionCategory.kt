@@ -3,6 +3,7 @@ package com.renderson.cashflowapp.enums
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Restaurant
@@ -17,6 +18,7 @@ enum class TransactionCategory(val displayName: String, val icon: ImageVector) {
     MORADIA("Moradia", Icons.Default.Home),
     LAZER("Lazer", Icons.Default.TheaterComedy),
     DEPOSITO("Depósito", Icons.Default.AccountBalance),
+    CARTAO_CREDITO("Cartão de crédito", Icons.Default.CreditCard),
     OUTROS("Outros", Icons.Default.Category);
 
     companion object {

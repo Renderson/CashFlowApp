@@ -10,7 +10,8 @@ class TransactionCategoryClassifier {
         listOf("uber", "99", "taxi", "ônibus", "metro", "combustível", "gasolina", "estacionamento", "pedágio", "transporte", "posto") to TransactionCategory.TRANSPORTE,
         listOf("aluguel", "condomínio", "luz", "água", "energia", "gás", "internet", "telefone", "net", "vivo", "claro", "oi", "moradia", "conta de luz") to TransactionCategory.MORADIA,
         listOf("cinema", "streaming", "netflix", "spotify", "lazer", "academia", "jogo", "game") to TransactionCategory.LAZER,
-        listOf("depósito", "deposito", "transferência", "transferencia", "ted", "pix recebido", "salário", "salario") to TransactionCategory.DEPOSITO
+        listOf("depósito", "deposito", "transferência", "transferencia", "ted", "pix recebido", "salário", "salario") to TransactionCategory.DEPOSITO,
+        listOf("cartão", "cartao", "crédito", "credito", "fatura", "cartão de credito", "cartão de crédito") to TransactionCategory.CARTAO_CREDITO
     )
 
     private val allKeywords: List<Pair<String, TransactionCategory>> = keywordToCategory
