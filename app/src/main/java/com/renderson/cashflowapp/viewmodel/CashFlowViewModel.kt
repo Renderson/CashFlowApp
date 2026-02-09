@@ -5,15 +5,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.renderson.cashflowapp.data.repository.ClashFlowRepository
+import com.renderson.cashflowapp.enums.FilterPeriod
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.model.DataExtract
-import com.renderson.cashflowapp.usecase.SuggestTransactionCategoryUseCase
 import com.renderson.cashflowapp.model.Transaction
+import com.renderson.cashflowapp.usecase.SuggestTransactionCategoryUseCase
+import com.renderson.cashflowapp.enums.dateRangeFromToday
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +34,23 @@ class CashFlowViewModel @Inject internal constructor(
     private val _transactionToEdit = MutableStateFlow<Transaction?>(null)
     val transactionToEdit: StateFlow<Transaction?> = _transactionToEdit.asStateFlow()
 
-    private val _selectedCategory = MutableStateFlow<TransactionCategory>(TransactionCategory.OUTROS)
+    private val _filterPeriod = MutableStateFlow(FilterPeriod.CURRENT_MONTH)
+    private val _allTransactions = MutableStateFlow<List<Transaction>>(emptyList())
+    val filterPeriod: StateFlow<FilterPeriod> = _filterPeriod.asStateFlow()
+
+    val filteredTransactions: StateFlow<List<Transaction>> = combine(
+        _allTransactions,
+        _filterPeriod
+    ) { all, period ->
+        val (start, end) = period.dateRangeFromToday()
+        all.filter { it.date in start..end }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    private val _selectedCategory = MutableStateFlow(TransactionCategory.OUTROS)
     val selectedCategory: StateFlow<TransactionCategory> = _selectedCategory.asStateFlow()
 
     fun suggestCategory(description: String): TransactionCategory =
@@ -37,6 +58,10 @@ class CashFlowViewModel @Inject internal constructor(
 
     fun setSelectedCategory(category: TransactionCategory) {
         _selectedCategory.value = category
+    }
+
+    fun setFilterPeriod(period: FilterPeriod) {
+        _filterPeriod.value = period
     }
 
     init {
@@ -47,6 +72,9 @@ class CashFlowViewModel @Inject internal constructor(
         viewModelScope.launch {
             repository.getExtract().collect { dataExtract ->
                 _extract.value = dataExtract
+                _allTransactions.value = dataExtract.years
+                    .flatMap { it.months }
+                    .flatMap { it.transactions }
             }
         }
     }
@@ -89,4 +117,5 @@ class CashFlowViewModel @Inject internal constructor(
             clearTransactionToEdit()
         }
     }
+
 }

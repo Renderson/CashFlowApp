@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,7 +29,9 @@ fun CashFlowAppBar(
     iconBackVisible: Boolean = true,
     iconHomeVisible: Boolean = false,
     onIconBackClick: (() -> Unit)? = null,
-    onIconHomeClick: (() -> Unit)? = null
+    onIconHomeClick: (() -> Unit)? = null,
+    showFilterIcon: Boolean = false,
+    onFilterClick: (() -> Unit)? = null
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -61,6 +64,16 @@ fun CashFlowAppBar(
                             modifier = Modifier.size(23.dp),
                             tint = colorViews,
                             contentDescription = "Home"
+                        )
+                    }
+                }
+                if (showFilterIcon) {
+                    IconButton(onClick = { onFilterClick?.invoke() }) {
+                        Icon(
+                            imageVector = Icons.Filled.FilterList,
+                            modifier = Modifier.size(23.dp),
+                            tint = colorViews,
+                            contentDescription = "Filtrar"
                         )
                     }
                 }
