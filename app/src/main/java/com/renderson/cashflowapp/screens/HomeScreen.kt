@@ -49,28 +49,30 @@ fun HomeScreen(
     viewModel: CashFlowViewModel
 ) {
     val extract by viewModel.extract.observeAsState()
+    val allTransactions = extract?.years?.flatMap { it.months }?.flatMap { it.transactions }.orEmpty()
+    val totalDeposit = allTransactions
+        .filter { it.type == TypeExtract.DEPOSIT }
+        .sumOf { it.amount }
+    val totalPayment = allTransactions
+        .filter { it.type == TypeExtract.PAYMENT }
+        .sumOf { it.amount }
+    val totalBalance = totalDeposit - totalPayment
+
     val currentMonthKey = getCurrentMonthKey()
     val currentMonth = extract?.years?.flatMap { it.months }?.find { it.month == currentMonthKey }
-    val currentMonthDeposit = currentMonth?.transactions
-        ?.filter { it.type == TypeExtract.DEPOSIT }
-        ?.sumOf { it.amount } ?: 0.0
-    val currentMonthPayment = currentMonth?.transactions
-        ?.filter { it.type == TypeExtract.PAYMENT }
-        ?.sumOf { it.amount } ?: 0.0
-    val currentMonthBalance = currentMonthDeposit - currentMonthPayment
     val currentMonthTransactions = currentMonth?.transactions.orEmpty()
 
     val itemsCards = listOf(
         CardItems(
             title = "Total \nEntradas",
             type = TypeExtract.DEPOSIT,
-            total = currentMonthDeposit,
+            total = totalDeposit,
             icon = Icons.AutoMirrored.Outlined.CallReceived
         ),
         CardItems(
             title = "Total \nSaídas",
             type = TypeExtract.PAYMENT,
-            total = currentMonthPayment,
+            total = totalPayment,
             icon = Icons.AutoMirrored.Outlined.CallMade
         ),
         CardItems(
@@ -98,7 +100,7 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(top = paddingValues.calculateTopPadding())
             ) {
-                CurrentBalanceComposable(balance = currentMonthBalance)
+                CurrentBalanceComposable(balance = totalBalance)
                 LazyRow(
                     modifier = Modifier
                         .padding(all = 8.dp)

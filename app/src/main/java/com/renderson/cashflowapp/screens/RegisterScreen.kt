@@ -256,9 +256,6 @@ fun RegisterScreen(
                             onClick.invoke()
                         },
                         modifier = Modifier.fillMaxWidth().height(48.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
                     ) {
                         Text("Deletar")
                     }

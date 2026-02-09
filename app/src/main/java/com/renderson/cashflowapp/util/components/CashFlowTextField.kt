@@ -1,11 +1,15 @@
 package com.renderson.cashflowapp.util.components
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,15 +17,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.renderson.cashflowapp.extensions.parseBrazilianCurrencyToDouble
+import java.text.NumberFormat
+import java.util.Locale
 
+private const val CURRENCY_MAX_DIGITS = 11
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CashFlowTextField(
     modifier: Modifier,
@@ -33,65 +48,112 @@ fun CashFlowTextField(
     imeAction: ImeAction = ImeAction.Done,
     enabled: Boolean = true,
     maxLength: Int = 120,
-    colors: TextFieldColors = TextFieldDefaults.colors(),
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
     onInputChange: (input: String) -> Unit = {}
 ) {
-
-    var input by remember { mutableStateOf(value) }
-    LaunchedEffect(value) { input = value }
-
+    val isCurrency = inputType == TypeInputEnum.CURRENCY
+    var inputTf by remember {
+        mutableStateOf(initialTextFieldValue(value, inputType.type))
+    }
+    var inputStr by remember { mutableStateOf(if (isCurrency) "" else value) }
     var isError by remember { mutableStateOf(false) }
 
-    TextField(
-        modifier = modifier,
-        value = input,
-        label = {
-            Text(
-                text = hint,
-                color = MaterialTheme.colorScheme.primary
-            )
-        },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction,
-            capitalization = capitalization
-        ),
-        enabled = enabled,
-        visualTransformation = { visualTransformationGetType(inputType.type, it) },
-        isError = isError,
-        colors = colors,
-        onValueChange = { newValue ->
-            val filtered = when (inputType.type) {
-                TypeInputEnum.CURRENCY.type -> filterCurrencyInput(newValue)
-                else -> newValue.take(maxLength)
+    LaunchedEffect(value, inputType.type) {
+        if (isCurrency) {
+            val synced = initialTextFieldValue(value, inputType.type)
+            if (synced.text != inputTf.text) {
+                inputTf = synced
             }
-            if (filtered.length <= maxLength) {
-                input = filtered
-                if (input.isEmpty()) {
-                    isError = false
-                    onInputChange(input)
-                } else {
-                    val (isValid, formattedInput) = validateInput(inputType.type, input)
-                    if (isValid) {
-                        onInputChange(formattedInput)
-                        isError = false
-                    } else {
-                        onInputChange("")
-                        isError = true
-                    }
-                }
+        } else {
+            if (value != inputStr) {
+                inputStr = value
             }
         }
-    )
+    }
+
+    if (isCurrency) {
+        val currencyInteractionSource = remember { MutableInteractionSource() }
+        BasicTextField(
+            value = inputTf,
+            modifier = modifier,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            onValueChange = { newValue ->
+                var formattedValue = newValue.text
+                val digitsOnly = formattedValue.extractNumbers?.toString()?.take(CURRENCY_MAX_DIGITS) ?: ""
+                if (digitsOnly.length <= CURRENCY_MAX_DIGITS) {
+                    formattedValue = digitsOnly.asCurrencyPtBR()
+                    val cursorPosition = formattedValue.length.coerceAtMost(formattedValue.length)
+                    inputTf = TextFieldValue(text = formattedValue, selection = TextRange(cursorPosition))
+                    onInputChange(formattedValue)
+                }
+            },
+            enabled = enabled,
+            interactionSource = currencyInteractionSource,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = imeAction,
+                capitalization = capitalization
+            ),
+            decorationBox = { innerTextField ->
+                OutlinedTextFieldDefaults.DecorationBox(
+                    value = inputTf.text,
+                    visualTransformation = VisualTransformation.None,
+                    innerTextField = innerTextField,
+                    placeholder = { Text(hint) },
+                    label = { Text(hint) },
+                    singleLine = true,
+                    enabled = enabled,
+                    isError = isError,
+                    interactionSource = currencyInteractionSource,
+                    colors = colors
+                )
+            }
+        )
+    } else {
+        OutlinedTextField(
+            modifier = modifier,
+            value = inputStr,
+            label = { Text(text = hint, color = MaterialTheme.colorScheme.primary) },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType,
+                imeAction = imeAction,
+                capitalization = capitalization
+            ),
+            enabled = enabled,
+            visualTransformation = { visualTransformationGetType(inputType.type, it) },
+            isError = isError,
+            colors = colors,
+            onValueChange = { newValue ->
+                inputStr = newValue.take(maxLength)
+                onInputChange(inputStr)
+            }
+        )
+    }
 }
 
-private fun validateInput(inputType: String, input: String): Pair<Boolean, String> {
-    return when (inputType) {
-        TypeInputEnum.CURRENCY.type -> Pair(true, input)
-        TypeInputEnum.PESO.type -> Pair(true, input)
-        TypeInputEnum.ALTURA.type -> Pair(true, input)
-        else -> Pair(true, input)
+fun String.asCurrencyPtBR(): String {
+    if (isEmpty()) return "R$ 0,00"
+    val intValue = extractNumbers ?: 0L
+    val currencyValue = intValue * 0.01
+    val formatter = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
+    return formatter.format(currencyValue)
+}
+
+private val String.extractNumbers: Long?
+    get() = filter { it in '0'..'9' }.take(CURRENCY_MAX_DIGITS).toLongOrNull()
+
+private fun initialTextFieldValue(value: String, type: String): TextFieldValue {
+    val text = when (type) {
+        TypeInputEnum.CURRENCY.type -> {
+            if (value.isBlank()) "R$ 0,00"
+            else (value.parseBrazilianCurrencyToDouble() * 100).toLong().toString().asCurrencyPtBR()
+        }
+        else -> value
     }
+    return TextFieldValue(text = text, selection = TextRange(text.length))
 }
 
 private fun visualTransformationGetType(type: String, input: AnnotatedString): TransformedText {
@@ -113,70 +175,56 @@ fun visualTransformationToNormal(input: AnnotatedString): TransformedText {
     return TransformedText(annotatedString, offsetTranslator)
 }
 
-private fun filterCurrencyInput(input: String): String {
-    var hasComma = false
-    var digitsAfterComma = 0
-    return buildString {
-        for (c in input) {
-            when {
-                c in '0'..'9' -> {
-                    if (hasComma) {
-                        if (digitsAfterComma < 2) {
-                            append(c)
-                            digitsAfterComma++
-                        }
-                    } else {
-                        append(c)
-                    }
-                }
-                c == ',' && !hasComma -> {
-                    append(c)
-                    hasComma = true
-                }
-            }
-        }
-    }
-}
-
+/**
+ * Valor interno = apenas dígitos = valor em centavos (ex: "1050" → R$ 10,50).
+ * Permite digitar centavos naturalmente (os dois últimos dígitos são sempre decimais).
+ */
 class BrazilianCurrencyTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
-        val raw = text.text
-        val commaIndex = raw.indexOf(',')
-        val intStr = if (commaIndex < 0) raw.filter { it in '0'..'9' } else raw.take(commaIndex).filter { it in '0'..'9' }
-        val decStr = if (commaIndex < 0) "00" else raw.drop(commaIndex + 1).filter { it in '0'..'9' }.take(2).padEnd(2, '0')
-        val intDisplay = if (intStr.isEmpty()) "0" else intStr.reversed().chunked(3).joinToString(".").reversed()
-        val display = "R$ $intDisplay,$decStr"
+        val raw = text.text.filter { it in '0'..'9' }.take(CURRENCY_MAX_DIGITS)
+        if (raw.isEmpty()) {
+            val display = "R$ 0,00"
+            val emptyMapping = object : OffsetMapping {
+                override fun originalToTransformed(offset: Int) = 0.coerceIn(0, display.length)
+                override fun transformedToOriginal(offset: Int) = 0
+            }
+            return TransformedText(AnnotatedString(display), emptyMapping)
+        }
+        val cents = raw.toLongOrNull() ?: 0L
+        val intPart = (cents / 100).toString()
+        val decPart = (cents % 100).toString().padStart(2, '0')
+        val intDisplay = if (intPart == "0" && raw.isNotEmpty()) intPart else intPart.reversed().chunked(3).joinToString(".").reversed()
+        val display = "R$ $intDisplay,$decPart"
 
         val origToTrans = IntArray(raw.length + 1)
         val transToOrig = IntArray(display.length + 1)
         origToTrans[0] = 0
         transToOrig[0] = 0
         var t = 3
-        for (i in 1..display.length) transToOrig[i] = 0
         var o = 0
-        for (i in intStr.indices) {
-            if (i > 0 && (intStr.length - i) % 3 == 0) {
+        for (i in intPart.indices) {
+            if (i > 0 && (intPart.length - i) % 3 == 0) {
                 t++
-                transToOrig[t] = o
+                if (o <= raw.length) transToOrig[t] = o
             }
             o++
             t++
             if (o <= raw.length) origToTrans[o] = t
             if (t <= display.length) transToOrig[t] = o
         }
-        if (commaIndex >= 0) {
+        t++
+        if (o <= raw.length) transToOrig[t] = o
+        o++
+        if (o <= raw.length) origToTrans[o] = t
+        if (t <= display.length) transToOrig[t] = o
+        for (i in decPart.indices) {
             o++
             t++
             if (o <= raw.length) origToTrans[o] = t
             if (t <= display.length) transToOrig[t] = o
-            for (i in decStr.indices) {
-                o++
-                t++
-                if (o <= raw.length) origToTrans[o] = t
-                if (t <= display.length) transToOrig[t] = o
-            }
         }
         for (i in o..raw.length) origToTrans[i] = t
+        for (i in t..display.length) transToOrig[i] = raw.length
 
         val offsetMapping = object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int =
@@ -190,12 +238,6 @@ class BrazilianCurrencyTransformation : VisualTransformation {
 }
 
 enum class TypeInputEnum(val type: String) {
-    EMAIL("EMAIL"),
-    CPF("CPF"),
-    NAME("NAME"),
-    PESO("PESO"),
-    ALTURA("ALTURA"),
-    DATA("DATA"),
     CURRENCY("CURRENCY"),
     NONE("")
 }
