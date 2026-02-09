@@ -1,5 +1,6 @@
 package com.renderson.cashflowapp.model
 
+import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 
 data class DataExtract(
@@ -21,5 +22,6 @@ data class Transaction(
     val date: String,
     val description: String,
     val type: TypeExtract,
+    val category: TransactionCategory = TransactionCategory.OUTROS,
     val amount: Double
 )

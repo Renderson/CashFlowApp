@@ -2,6 +2,7 @@ package com.renderson.cashflowapp.data.repository
 
 import androidx.room.withTransaction
 import com.renderson.cashflowapp.data.ClashFlowDatabase
+import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.model.DataExtract
 import com.renderson.cashflowapp.model.MonthEntity
@@ -18,7 +19,7 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
 
     private val db = database.dataExtractDao()
 
-    suspend fun addTransaction(date: String, description: String, type: TypeExtract, amount: Double) {
+    suspend fun addTransaction(date: String, description: String, type: TypeExtract, category: TransactionCategory, amount: Double) {
         if (date.length < 10) return
         val yearStr = date.take(4)
         val monthStr = "${date.take(7)}-01"
@@ -41,6 +42,7 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
                     date = date,
                     description = description,
                     type = type.name,
+                    category = category.name,
                     amount = amount,
                     monthId = monthId
                 )
@@ -53,6 +55,7 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
         date: String,
         description: String,
         type: TypeExtract,
+        category: TransactionCategory,
         amount: Double
     ) {
         if (date.length < 10) return
@@ -78,6 +81,7 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
                     date = date,
                     description = description,
                     type = type.name,
+                    category = category.name,
                     amount = amount,
                     monthId = monthId
                 )
@@ -104,6 +108,7 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
                                         date = transactionEntity.date,
                                         description = transactionEntity.description,
                                         type = TypeExtract.valueOf(transactionEntity.type),
+                                        category = TransactionCategory.fromString(transactionEntity.category),
                                         amount = transactionEntity.amount
                                     )
                                 }

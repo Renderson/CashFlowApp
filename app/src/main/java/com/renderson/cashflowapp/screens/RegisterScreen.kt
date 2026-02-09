@@ -5,12 +5,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
@@ -30,15 +33,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.dateStringToMillis
 import com.renderson.cashflowapp.extensions.getTodayAsString
@@ -73,6 +79,14 @@ fun RegisterScreen(
         mutableStateOf(transactionToEdit?.type)
     }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showCategorySelector by remember { mutableStateOf(false) }
+    val selectedCategory by viewModel.selectedCategory.collectAsState(initial = TransactionCategory.OUTROS)
+
+    LaunchedEffect(description) {
+        if (transactionToEdit == null) {
+            viewModel.setSelectedCategory(viewModel.suggestCategory(description))
+        }
+    }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = dateStringToMillis(getTodayAsString()),
         yearRange = IntRange(2020, 2030)
@@ -83,6 +97,45 @@ fun RegisterScreen(
         dateStr.isNotEmpty() &&
         selectedType != null &&
         amount.parseBrazilianCurrencyToDouble() > 0
+
+    if (showCategorySelector) {
+        AlertDialog(
+            onDismissRequest = { showCategorySelector = false },
+            title = { Text("Escolher categoria") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TransactionCategory.entries.forEach { category ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.setSelectedCategory(category)
+                                    showCategorySelector = false
+                                }
+                                .padding(vertical = 12.dp, horizontal = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = category.icon,
+                                contentDescription = null,
+                                modifier = Modifier.height(24.dp)
+                            )
+                            Text(
+                                text = category.displayName,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCategorySelector = false }) {
+                    Text("Fechar", color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        )
+    }
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -132,6 +185,57 @@ fun RegisterScreen(
                     ),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Tipo",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                ) {
+                    SegmentedButton(
+                        selected = selectedType == TypeExtract.DEPOSIT,
+                        onClick = { selectedType = TypeExtract.DEPOSIT },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    ) {
+                        Text("Entrada")
+                    }
+                    SegmentedButton(
+                        selected = selectedType == TypeExtract.PAYMENT,
+                        onClick = { selectedType = TypeExtract.PAYMENT },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    ) {
+                        Text("Saída")
+                    }
+                }
+
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Categoria",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                AssistChip(
+                    onClick = { showCategorySelector = true },
+                    label = { Text(selectedCategory.displayName) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = selectedCategory.icon,
+                            contentDescription = null,
+                            modifier = Modifier.height(20.dp)
+                        )
+                    }
+                )
+
                 CashFlowTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = amount,
@@ -142,15 +246,43 @@ fun RegisterScreen(
                     onInputChange = { amount = it }
                 )
 
-                CashFlowTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = description,
-                    hint = "Ex: Supermercado, Salário...",
-                    keyboardType = KeyboardType.Text,
-                    capitalization = KeyboardCapitalization.Sentences,
-                    maxLength = 120,
-                    onInputChange = { description = it }
-                )
+                if (selectedType == TypeExtract.PAYMENT) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = description,
+                        onValueChange = { description = it.take(120) },
+                        label = { Text("Ex: Supermercado, Salário...", color = MaterialTheme.colorScheme.primary) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = selectedCategory.icon,
+                                contentDescription = null,
+                                modifier = Modifier.height(24.dp)
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                } else {
+                    CashFlowTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = description,
+                        hint = "Ex: Supermercado, Salário...",
+                        keyboardType = KeyboardType.Text,
+                        capitalization = KeyboardCapitalization.Sentences,
+                        maxLength = 120,
+                        onInputChange = { description = it }
+                    )
+                }
 
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -186,39 +318,6 @@ fun RegisterScreen(
                     )
                 }
 
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Tipo",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-                ) {
-                    SegmentedButton(
-                        selected = selectedType == TypeExtract.DEPOSIT,
-                        onClick = { selectedType = TypeExtract.DEPOSIT },
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                        colors = SegmentedButtonDefaults.colors(
-                            activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    ) {
-                        Text("Entrada")
-                    }
-                    SegmentedButton(
-                        selected = selectedType == TypeExtract.PAYMENT,
-                        onClick = { selectedType = TypeExtract.PAYMENT },
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                        colors = SegmentedButtonDefaults.colors(
-                            activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    ) {
-                        Text("Saída")
-                    }
-                }
-
                 Button(
                     onClick = {
                         val type = selectedType ?: return@Button
@@ -229,6 +328,7 @@ fun RegisterScreen(
                                 date = dateStr,
                                 description = description.trim(),
                                 type = type,
+                                category = selectedCategory,
                                 amount = value
                             )
                         } else {
@@ -236,6 +336,7 @@ fun RegisterScreen(
                                 date = dateStr,
                                 description = description.trim(),
                                 type = type,
+                                category = selectedCategory,
                                 amount = value
                             )
                         }

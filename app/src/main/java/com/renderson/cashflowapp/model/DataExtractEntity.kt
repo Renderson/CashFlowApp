@@ -35,6 +35,8 @@ data class TransactionEntity(
     val description: String = "",
     @ColumnInfo(name = "type")
     val type: String = "",
+    @ColumnInfo(name = "category")
+    val category: String = "OUTROS",
     @ColumnInfo(name = "amount")
     val amount: Double = 0.0,
     @ColumnInfo(name = "monthId")

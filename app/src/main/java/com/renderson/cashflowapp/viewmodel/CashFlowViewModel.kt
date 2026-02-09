@@ -5,8 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.renderson.cashflowapp.data.repository.ClashFlowRepository
+import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.model.DataExtract
+import com.renderson.cashflowapp.usecase.SuggestTransactionCategoryUseCase
 import com.renderson.cashflowapp.model.Transaction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CashFlowViewModel @Inject internal constructor(
-    private val repository: ClashFlowRepository
+    private val repository: ClashFlowRepository,
+    private val suggestTransactionCategoryUseCase: SuggestTransactionCategoryUseCase
 ): ViewModel() {
 
     private val _extract = MutableLiveData<DataExtract>()
@@ -25,6 +28,16 @@ class CashFlowViewModel @Inject internal constructor(
 
     private val _transactionToEdit = MutableStateFlow<Transaction?>(null)
     val transactionToEdit: StateFlow<Transaction?> = _transactionToEdit.asStateFlow()
+
+    private val _selectedCategory = MutableStateFlow<TransactionCategory>(TransactionCategory.OUTROS)
+    val selectedCategory: StateFlow<TransactionCategory> = _selectedCategory.asStateFlow()
+
+    fun suggestCategory(description: String): TransactionCategory =
+        suggestTransactionCategoryUseCase(description)
+
+    fun setSelectedCategory(category: TransactionCategory) {
+        _selectedCategory.value = category
+    }
 
     init {
         loadExtract()
@@ -38,15 +51,16 @@ class CashFlowViewModel @Inject internal constructor(
         }
     }
 
-    fun saveTransaction(date: String, description: String, type: TypeExtract, amount: Double) {
+    fun saveTransaction(date: String, description: String, type: TypeExtract, category: TransactionCategory, amount: Double) {
         viewModelScope.launch {
-            repository.addTransaction(date, description, type, amount)
+            repository.addTransaction(date, description, type, category, amount)
             loadExtract()
         }
     }
 
     fun setTransactionToEdit(transaction: Transaction?) {
         _transactionToEdit.value = transaction
+        _selectedCategory.value = transaction?.category ?: TransactionCategory.OUTROS
     }
 
     fun clearTransactionToEdit() {
@@ -58,10 +72,11 @@ class CashFlowViewModel @Inject internal constructor(
         date: String,
         description: String,
         type: TypeExtract,
+        category: TransactionCategory,
         amount: Double
     ) {
         viewModelScope.launch {
-            repository.updateTransaction(transactionId, date, description, type, amount)
+            repository.updateTransaction(transactionId, date, description, type, category, amount)
             loadExtract()
             clearTransactionToEdit()
         }

@@ -9,7 +9,7 @@ import com.renderson.cashflowapp.model.YearEntity
 
 @Database(
     entities = [YearEntity::class, MonthEntity::class, TransactionEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class ClashFlowDatabase : RoomDatabase() {

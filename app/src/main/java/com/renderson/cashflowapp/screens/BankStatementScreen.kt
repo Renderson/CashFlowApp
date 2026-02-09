@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -143,14 +145,21 @@ fun BankStatementScreen(
                         .fillMaxSize()
                         .padding(8.dp),
                     contentPadding = PaddingValues(bottom = 88.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     val items = month.transactions.sortedBy { it.date }
-                    items(items) { transaction ->
+                    itemsIndexed(items) { index, transaction ->
                         TransactionItem(
                             transaction = transaction,
                             onClick = { onEditTransaction(transaction) }
                         )
+                        if (index < items.size - 1) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                            )
+                        }
                     }
                 }
             } else {
@@ -240,15 +249,28 @@ fun TransactionItem(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(modifier = Modifier.weight(1f, fill = false)) {
-            Text(
-                text = transaction.description,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-            Text(
-                text = transaction.date.formatDate(),
-                color = MaterialTheme.colorScheme.secondary,
-                style = MaterialTheme.typography.bodySmall
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = transaction.category.icon,
+                    contentDescription = transaction.category.displayName,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+                Column {
+                    Text(
+                        text = transaction.description,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = transaction.date.formatDate(),
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
         Column(horizontalAlignment = Alignment.End) {
             val type = when (transaction.type) {
