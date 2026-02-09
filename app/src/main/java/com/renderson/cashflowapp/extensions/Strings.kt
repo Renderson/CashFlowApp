@@ -17,6 +17,20 @@ fun getCurrentMonthKey(): String {
     return "%04d-%02d-01".format(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1)
 }
 
+/** Primeiro dia do mês atual em yyyy-MM-dd. */
+fun getFirstDayOfCurrentMonth(): String {
+    val cal = Calendar.getInstance()
+    cal.set(Calendar.DAY_OF_MONTH, 1)
+    return dateFormatStorage.format(cal.time)
+}
+
+/** Último dia do mês atual em yyyy-MM-dd. */
+fun getLastDayOfCurrentMonth(): String {
+    val cal = Calendar.getInstance()
+    cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+    return dateFormatStorage.format(cal.time)
+}
+
 fun dateStringToMillis(dateStr: String): Long {
     return try {
         dateFormatStorage.parse(dateStr)?.time ?: System.currentTimeMillis()

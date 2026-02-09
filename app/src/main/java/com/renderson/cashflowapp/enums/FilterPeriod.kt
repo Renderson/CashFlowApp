@@ -8,7 +8,8 @@ enum class FilterPeriod(val label: String) {
     CURRENT_MONTH("Mês atual"),
     THREE_MONTHS("3 meses"),
     SIX_MONTHS("6 meses"),
-    ONE_YEAR("1 ano");
+    ONE_YEAR("1 ano"),
+    CUSTOM("Personalizado");
 }
 
 private val dbDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
@@ -46,6 +47,14 @@ fun FilterPeriod.dateRangeFromToday(): Pair<String, String> {
             cal.add(Calendar.MONTH, -12)
             val start = dbDateFormatter.format(cal.time)
             start to todayStr
+        }
+
+        FilterPeriod.CUSTOM -> {
+            cal.set(Calendar.DAY_OF_MONTH, 1)
+            val start = dbDateFormatter.format(cal.time)
+            cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+            val end = dbDateFormatter.format(cal.time)
+            start to end
         }
     }
 }

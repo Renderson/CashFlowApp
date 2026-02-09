@@ -35,14 +35,20 @@ class CashFlowViewModel @Inject internal constructor(
     val transactionToEdit: StateFlow<Transaction?> = _transactionToEdit.asStateFlow()
 
     private val _filterPeriod = MutableStateFlow(FilterPeriod.CURRENT_MONTH)
+    private val _customDateRange = MutableStateFlow<Pair<String, String>?>(null)
     private val _allTransactions = MutableStateFlow<List<Transaction>>(emptyList())
     val filterPeriod: StateFlow<FilterPeriod> = _filterPeriod.asStateFlow()
 
     val filteredTransactions: StateFlow<List<Transaction>> = combine(
         _allTransactions,
-        _filterPeriod
-    ) { all, period ->
-        val (start, end) = period.dateRangeFromToday()
+        _filterPeriod,
+        _customDateRange
+    ) { all, period, customRange ->
+        val (start, end) = if (period == FilterPeriod.CUSTOM && customRange != null) {
+            customRange
+        } else {
+            period.dateRangeFromToday()
+        }
         all.filter { it.date in start..end }
     }.stateIn(
         scope = viewModelScope,
@@ -61,7 +67,15 @@ class CashFlowViewModel @Inject internal constructor(
     }
 
     fun setFilterPeriod(period: FilterPeriod) {
+        if (period != FilterPeriod.CUSTOM) {
+            _customDateRange.value = null
+        }
         _filterPeriod.value = period
+    }
+
+    fun setFilterCustomRange(start: String, end: String) {
+        _customDateRange.value = start to end
+        _filterPeriod.value = FilterPeriod.CUSTOM
     }
 
     init {
@@ -117,5 +131,4 @@ class CashFlowViewModel @Inject internal constructor(
             clearTransactionToEdit()
         }
     }
-
 }

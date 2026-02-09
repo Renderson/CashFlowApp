@@ -1,6 +1,7 @@
 package com.renderson.cashflowapp.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,17 +30,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.CallMade
 import androidx.compose.material.icons.automirrored.outlined.CallReceived
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,7 +64,12 @@ import androidx.compose.ui.unit.dp
 import com.renderson.cashflowapp.enums.FilterPeriod
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
+import com.renderson.cashflowapp.extensions.dateStringToMillis
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.getFirstDayOfCurrentMonth
+import com.renderson.cashflowapp.extensions.getLastDayOfCurrentMonth
+import com.renderson.cashflowapp.extensions.millisToDateString
+import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.model.CardItems
 import com.renderson.cashflowapp.util.components.CashFlowAppBar
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
@@ -217,6 +232,19 @@ fun HomeScreen(
 
             if (showFilterBottomSheet) {
                 val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                var customStartDateStr by remember { mutableStateOf(getFirstDayOfCurrentMonth()) }
+                var customEndDateStr by remember { mutableStateOf(getLastDayOfCurrentMonth()) }
+                var showStartDatePicker by remember { mutableStateOf(false) }
+                var showEndDatePicker by remember { mutableStateOf(false) }
+                val startDatePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = dateStringToMillis(getFirstDayOfCurrentMonth()),
+                    yearRange = IntRange(2020, 2030)
+                )
+                val endDatePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = dateStringToMillis(getLastDayOfCurrentMonth()),
+                    yearRange = IntRange(2020, 2030)
+                )
+
                 ModalBottomSheet(
                     sheetState = sheetState,
                     onDismissRequest = { showFilterBottomSheet = false }
@@ -241,7 +269,9 @@ fun HomeScreen(
                                     selected = period == filterPeriod,
                                     onClick = {
                                         viewModel.setFilterPeriod(period)
-                                        showFilterBottomSheet = false
+                                        if (period != FilterPeriod.CUSTOM) {
+                                            showFilterBottomSheet = false
+                                        }
                                     },
                                     label = {
                                         Text(text = period.label)
@@ -249,6 +279,142 @@ fun HomeScreen(
                                 )
                             }
                         }
+
+                        AnimatedVisibility(visible = filterPeriod == FilterPeriod.CUSTOM) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = "Data inicial",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    OutlinedTextField(
+                                        value = customStartDateStr.toDisplayDate(),
+                                        onValueChange = { },
+                                        readOnly = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        trailingIcon = {
+                                            IconButton(onClick = { showStartDatePicker = true }) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.CalendarToday,
+                                                    contentDescription = "Escolher data inicial"
+                                                )
+                                            }
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .matchParentSize()
+                                            .clickable { showStartDatePicker = true }
+                                    )
+                                }
+
+                                Text(
+                                    text = "Data final",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    OutlinedTextField(
+                                        value = customEndDateStr.toDisplayDate(),
+                                        onValueChange = { },
+                                        readOnly = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        trailingIcon = {
+                                            IconButton(onClick = { showEndDatePicker = true }) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.CalendarToday,
+                                                    contentDescription = "Escolher data final"
+                                                )
+                                            }
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .matchParentSize()
+                                            .clickable { showEndDatePicker = true }
+                                    )
+                                }
+
+                                Button(
+                                    onClick = {
+                                        viewModel.setFilterCustomRange(customStartDateStr, customEndDateStr)
+                                        showFilterBottomSheet = false
+                                    },
+                                    enabled = customStartDateStr.isNotEmpty() &&
+                                        customEndDateStr.isNotEmpty() &&
+                                        customStartDateStr <= customEndDateStr,
+                                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                                ) {
+                                    Text("Filtrar")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (showStartDatePicker) {
+                    DatePickerDialog(
+                        onDismissRequest = { showStartDatePicker = false },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    startDatePickerState.selectedDateMillis?.let { millis ->
+                                        customStartDateStr = millisToDateString(millis)
+                                    }
+                                    showStartDatePicker = false
+                                }
+                            ) {
+                                Text("OK", color = MaterialTheme.colorScheme.primary)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showStartDatePicker = false }) {
+                                Text("Cancelar", color = MaterialTheme.colorScheme.onSurface)
+                            }
+                        }
+                    ) {
+                        DatePicker(state = startDatePickerState)
+                    }
+                }
+
+                if (showEndDatePicker) {
+                    DatePickerDialog(
+                        onDismissRequest = { showEndDatePicker = false },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    endDatePickerState.selectedDateMillis?.let { millis ->
+                                        customEndDateStr = millisToDateString(millis)
+                                    }
+                                    showEndDatePicker = false
+                                }
+                            ) {
+                                Text("OK", color = MaterialTheme.colorScheme.primary)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showEndDatePicker = false }) {
+                                Text("Cancelar", color = MaterialTheme.colorScheme.onSurface)
+                            }
+                        }
+                    ) {
+                        DatePicker(state = endDatePickerState)
                     }
                 }
             }
