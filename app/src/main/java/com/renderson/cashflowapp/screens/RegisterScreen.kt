@@ -1,10 +1,13 @@
 package com.renderson.cashflowapp.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -57,7 +59,7 @@ import com.renderson.cashflowapp.util.components.CashFlowTextField
 import com.renderson.cashflowapp.util.components.TypeInputEnum
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RegisterScreen(
@@ -97,45 +99,6 @@ fun RegisterScreen(
         dateStr.isNotEmpty() &&
         selectedType != null &&
         amount.parseBrazilianCurrencyToDouble() > 0
-
-    if (showCategorySelector) {
-        AlertDialog(
-            onDismissRequest = { showCategorySelector = false },
-            title = { Text("Escolher categoria") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TransactionCategory.entries.forEach { category ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.setSelectedCategory(category)
-                                    showCategorySelector = false
-                                }
-                                .padding(vertical = 12.dp, horizontal = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Icon(
-                                imageVector = category.icon,
-                                contentDescription = null,
-                                modifier = Modifier.height(24.dp)
-                            )
-                            Text(
-                                text = category.displayName,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showCategorySelector = false }) {
-                    Text("Fechar", color = MaterialTheme.colorScheme.primary)
-                }
-            }
-        )
-    }
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -226,7 +189,7 @@ fun RegisterScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     AssistChip(
-                        onClick = { showCategorySelector = true },
+                        onClick = { showCategorySelector = !showCategorySelector },
                         label = { Text(selectedCategory.displayName) },
                         leadingIcon = {
                             Icon(
@@ -236,6 +199,33 @@ fun RegisterScreen(
                             )
                         }
                     )
+
+                    AnimatedVisibility (showCategorySelector) {
+                        FlowRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            TransactionCategory.entries.forEach { category ->
+                                AssistChip(
+                                    onClick = {
+                                        viewModel.setSelectedCategory(category)
+                                        showCategorySelector = false
+                                    },
+                                    label = { Text(category.displayName) },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = category.icon,
+                                            contentDescription = null,
+                                            modifier = Modifier.height(20.dp)
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
 
                 CashFlowTextField(
@@ -248,43 +238,15 @@ fun RegisterScreen(
                     onInputChange = { amount = it }
                 )
 
-                if (selectedType == TypeExtract.PAYMENT) {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = description,
-                        onValueChange = { description = it.take(120) },
-                        label = { Text("Ex: Supermercado, Salário...", color = MaterialTheme.colorScheme.primary) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = selectedCategory.icon,
-                                contentDescription = null,
-                                modifier = Modifier.height(24.dp)
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            capitalization = KeyboardCapitalization.Sentences
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
-                } else {
-                    CashFlowTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = description,
-                        hint = "Ex: Supermercado, Salário...",
-                        keyboardType = KeyboardType.Text,
-                        capitalization = KeyboardCapitalization.Sentences,
-                        maxLength = 120,
-                        onInputChange = { description = it }
-                    )
-                }
+                CashFlowTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = description,
+                    hint = "Ex: Supermercado, Salário...",
+                    keyboardType = KeyboardType.Text,
+                    capitalization = KeyboardCapitalization.Sentences,
+                    maxLength = 120,
+                    onInputChange = { description = it }
+                )
 
                 Text(
                     modifier = Modifier.fillMaxWidth(),
