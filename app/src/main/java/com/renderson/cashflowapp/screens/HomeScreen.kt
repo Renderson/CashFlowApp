@@ -71,6 +71,7 @@ import com.renderson.cashflowapp.extensions.getLastDayOfCurrentMonth
 import com.renderson.cashflowapp.extensions.millisToDateString
 import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.model.CardItems
+import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.util.components.CashFlowAppBar
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
@@ -90,6 +91,9 @@ fun HomeScreen(
     val totalPayment = filteredTransactions
         .filter { it.type == TypeExtract.PAYMENT }
         .sumOf { it.amount }
+    val totalInvestment = filteredTransactions
+        .filter { it.type == TypeExtract.INVESTMENT }
+        .sumOf { it.amount }
     val totalBalance = totalDeposit - totalPayment
 
     val countDeposits = filteredTransactions.count { it.type == TypeExtract.DEPOSIT }
@@ -106,6 +110,9 @@ fun HomeScreen(
 
     var showFilterBottomSheet by remember { mutableStateOf(false) }
     var showActivitiesBottomSheet by remember { mutableStateOf(false) }
+    var showInvestmentsBottomSheet by remember { mutableStateOf(false) }
+
+    val investmentTransactions = filteredTransactions.filter { it.type == TypeExtract.INVESTMENT }
 
     val itemsCards = listOf(
         CardItems(
@@ -118,11 +125,6 @@ fun HomeScreen(
             title = "Total \nSaídas",
             type = TypeExtract.PAYMENT,
             total = totalPayment,
-            icon = Icons.AutoMirrored.Outlined.CallMade
-        ),
-        CardItems(
-            title = "Investimentos\n(Em breve)",
-            type = TypeExtract.INVESTMENT,
             icon = Icons.AutoMirrored.Outlined.CallMade
         )
     )
@@ -157,8 +159,15 @@ fun HomeScreen(
                     modifier = Modifier
                         .padding(all = 8.dp)
                 ) {
-                    items(itemsCards) { itemsCards ->
-                        ItemCardList(itemsCards)
+                    items(itemsCards.size) { index ->
+                        ItemCardList(itemsCards[index])
+                    }
+                    item {
+                        InvestimentosCard(
+                            totalInvestment = totalInvestment,
+                            investmentTransactions = investmentTransactions,
+                            onClick = { showInvestmentsBottomSheet = true }
+                        )
                     }
                 }
                 Text(
@@ -460,8 +469,112 @@ fun HomeScreen(
                     }
                 }
             }
+
+            if (showInvestmentsBottomSheet) {
+                val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                val investmentsSheet = filteredTransactions
+                    .filter { it.type == TypeExtract.INVESTMENT }
+                    .sortedByDescending { it.date }
+
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showInvestmentsBottomSheet = false }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            text = "Investimentos",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        if (investmentsSheet.isEmpty()) {
+                            Text(
+                                text = "Nenhum investimento neste período",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(investmentsSheet) { transaction ->
+                                    ItemExtractList(transaction)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     )
+}
+
+@Composable
+private fun InvestimentosCard(
+    totalInvestment: Double,
+    investmentTransactions: List<Transaction>,
+    onClick: () -> Unit
+) {
+    val hasInvestments = investmentTransactions.isNotEmpty()
+    Card(
+        modifier = Modifier
+            .padding(all = 4.dp)
+            .width(150.dp)
+            .height(100.dp)
+            .then(
+                if (hasInvestments) Modifier.clickable(onClick = onClick)
+                else Modifier
+            ),
+        shape = RoundedCornerShape(10.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = "Investimentos",
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = totalInvestment.formatForBrazilianCurrency(),
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            if (hasInvestments) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "Acessar",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable

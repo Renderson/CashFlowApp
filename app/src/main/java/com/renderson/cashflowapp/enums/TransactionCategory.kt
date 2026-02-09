@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.TheaterComedy
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -19,6 +20,7 @@ enum class TransactionCategory(val displayName: String, val icon: ImageVector) {
     LAZER("Lazer", Icons.Default.TheaterComedy),
     DEPOSITO("Depósito", Icons.Default.AccountBalance),
     CARTAO_CREDITO("Cartão de crédito", Icons.Default.CreditCard),
+    POUPANCA_COFRINHO("Investimento", Icons.Filled.Savings),
     OUTROS("Outros", Icons.Default.Category);
 
     companion object {

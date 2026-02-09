@@ -42,8 +42,8 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.renderson.cashflowapp.enums.TypeExtract
-import com.renderson.cashflowapp.extensions.formatDate
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.extensions.formatMonthYear
 import com.renderson.cashflowapp.extensions.getCurrentMonthKey
 import com.renderson.cashflowapp.model.Months
@@ -265,7 +265,7 @@ fun TransactionItem(
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
-                        text = transaction.date.formatDate(),
+                        text = transaction.date.toDisplayDate(),
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.bodySmall
                     )

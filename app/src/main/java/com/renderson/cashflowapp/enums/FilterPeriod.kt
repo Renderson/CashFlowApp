@@ -9,6 +9,7 @@ enum class FilterPeriod(val label: String) {
     THREE_MONTHS("3 meses"),
     SIX_MONTHS("6 meses"),
     ONE_YEAR("1 ano"),
+    ALL("Tudo"),
     CUSTOM("Personalizado");
 }
 
@@ -56,5 +57,7 @@ fun FilterPeriod.dateRangeFromToday(): Pair<String, String> {
             val end = dbDateFormatter.format(cal.time)
             start to end
         }
+
+        FilterPeriod.ALL -> throw UnsupportedOperationException("FilterPeriod.ALL does not use a date range; filter in ViewModel with full list.")
     }
 }

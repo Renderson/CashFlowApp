@@ -160,7 +160,7 @@ fun RegisterScreen(
                     SegmentedButton(
                         selected = selectedType == TypeExtract.DEPOSIT,
                         onClick = { selectedType = TypeExtract.DEPOSIT },
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
                         colors = SegmentedButtonDefaults.colors(
                             activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
                             activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -171,13 +171,24 @@ fun RegisterScreen(
                     SegmentedButton(
                         selected = selectedType == TypeExtract.PAYMENT,
                         onClick = { selectedType = TypeExtract.PAYMENT },
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
                         colors = SegmentedButtonDefaults.colors(
                             activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
                             activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     ) {
                         Text("Saída")
+                    }
+                    SegmentedButton(
+                        selected = selectedType == TypeExtract.INVESTMENT,
+                        onClick = { selectedType = TypeExtract.INVESTMENT },
+                        shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    ) {
+                        Text("Investimento")
                     }
                 }
 

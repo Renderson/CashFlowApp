@@ -44,12 +44,17 @@ class CashFlowViewModel @Inject internal constructor(
         _filterPeriod,
         _customDateRange
     ) { all, period, customRange ->
-        val (start, end) = if (period == FilterPeriod.CUSTOM && customRange != null) {
-            customRange
-        } else {
-            period.dateRangeFromToday()
+        when (period) {
+            FilterPeriod.ALL -> all
+            else -> {
+                val (start, end) = if (period == FilterPeriod.CUSTOM && customRange != null) {
+                    customRange
+                } else {
+                    period.dateRangeFromToday()
+                }
+                all.filter { it.date in start..end }
+            }
         }
-        all.filter { it.date in start..end }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
