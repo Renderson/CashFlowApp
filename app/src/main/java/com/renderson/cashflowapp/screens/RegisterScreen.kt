@@ -218,23 +218,25 @@ fun RegisterScreen(
                     }
                 }
 
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Categoria",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                AssistChip(
-                    onClick = { showCategorySelector = true },
-                    label = { Text(selectedCategory.displayName) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = selectedCategory.icon,
-                            contentDescription = null,
-                            modifier = Modifier.height(20.dp)
-                        )
-                    }
-                )
+                if (transactionToEdit != null) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "Categoria",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    AssistChip(
+                        onClick = { showCategorySelector = true },
+                        label = { Text(selectedCategory.displayName) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = selectedCategory.icon,
+                                contentDescription = null,
+                                modifier = Modifier.height(20.dp)
+                            )
+                        }
+                    )
+                }
 
                 CashFlowTextField(
                     modifier = Modifier.fillMaxWidth(),
