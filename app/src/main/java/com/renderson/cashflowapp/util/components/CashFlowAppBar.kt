@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,7 +35,9 @@ fun CashFlowAppBar(
     showFilterIcon: Boolean = false,
     onFilterClick: (() -> Unit)? = null,
     showSearchIcon: Boolean = false,
-    onSearchClick: (() -> Unit)? = null
+    onSearchClick: (() -> Unit)? = null,
+    showExportIcon: Boolean = false,
+    onExportClick: (() -> Unit)? = null
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -87,6 +90,16 @@ fun CashFlowAppBar(
                             modifier = Modifier.size(23.dp),
                             tint = colorViews,
                             contentDescription = "Buscar"
+                        )
+                    }
+                }
+                if (showExportIcon) {
+                    IconButton(onClick = { onExportClick?.invoke() }) {
+                        Icon(
+                            imageVector = Icons.Outlined.FileDownload,
+                            modifier = Modifier.size(23.dp),
+                            tint = colorViews,
+                            contentDescription = "Exportar"
                         )
                     }
                 }

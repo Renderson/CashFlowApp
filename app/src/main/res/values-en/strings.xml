@@ -92,4 +92,19 @@
     <string name="register_pick_date">Choose date</string>
     <string name="register_save">Save</string>
     <string name="register_delete">Delete</string>
+
+    <!-- Export -->
+    <string name="export_title">Export</string>
+    <string name="export_subtitle">Export data to spreadsheet</string>
+    <string name="export_button">Export CSV</string>
+    <string name="export_preview">%1$d transactions will be exported</string>
+    <string name="export_empty">No transactions in period</string>
+    <string name="export_success">File exported</string>
+    <string name="export_error">Export error</string>
+    <string name="export_filename_prefix">cashflow_export</string>
+    <string name="export_csv_column_date">Date</string>
+    <string name="export_csv_column_description">Description</string>
+    <string name="export_csv_column_type">Type</string>
+    <string name="export_csv_column_category">Category</string>
+    <string name="export_csv_column_amount">Amount</string>
 </resources>

@@ -19,7 +19,8 @@ fun ExtractScreen(
     name: String,
     viewModel: CashFlowViewModel,
     onEditTransaction: (Transaction) -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    onExportClick: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -28,7 +29,9 @@ fun ExtractScreen(
                 colorViews = MaterialTheme.colorScheme.onSurface,
                 iconBackVisible = false,
                 showSearchIcon = true,
-                onSearchClick = onSearchClick
+                onSearchClick = onSearchClick,
+                showExportIcon = true,
+                onExportClick = onExportClick
             )
         },
         content = { paddingValues ->

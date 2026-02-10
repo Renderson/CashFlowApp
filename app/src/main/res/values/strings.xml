@@ -92,4 +92,19 @@
     <string name="register_pick_date">Escolher data</string>
     <string name="register_save">Salvar</string>
     <string name="register_delete">Deletar</string>
+
+    <!-- Export -->
+    <string name="export_title">Exportar</string>
+    <string name="export_subtitle">Exportar dados para planilha</string>
+    <string name="export_button">Exportar CSV</string>
+    <string name="export_preview">%1$d transações serão exportadas</string>
+    <string name="export_empty">Nenhuma transação no período</string>
+    <string name="export_success">Arquivo exportado</string>
+    <string name="export_error">Erro ao exportar</string>
+    <string name="export_filename_prefix">cashflow_export</string>
+    <string name="export_csv_column_date">Data</string>
+    <string name="export_csv_column_description">Descrição</string>
+    <string name="export_csv_column_type">Tipo</string>
+    <string name="export_csv_column_category">Categoria</string>
+    <string name="export_csv_column_amount">Valor</string>
 </resources>
