@@ -41,7 +41,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.renderson.cashflowapp.enums.TypeExtract
-import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.formatForLocalCurrency
 import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.extensions.formatMonthYear
 import com.renderson.cashflowapp.extensions.getCurrentMonthKey
@@ -137,7 +137,7 @@ fun BankStatementScreen(
                         Text(
                             text = stringResource(
                                 R.string.statement_total_deposit,
-                                deposit.formatForBrazilianCurrency()
+                                deposit.formatForLocalCurrency()
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.secondary
@@ -145,7 +145,7 @@ fun BankStatementScreen(
                         Text(
                             text = stringResource(
                                 R.string.statement_total_payment,
-                                payment.formatForBrazilianCurrency()
+                                payment.formatForLocalCurrency()
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.secondary
@@ -287,7 +287,7 @@ fun TransactionItem(
         Column(horizontalAlignment = Alignment.End) {
             val type = transaction.type.label()
             Text(
-                text = transaction.amount.formatForBrazilianCurrency(),
+                text = transaction.amount.formatForLocalCurrency(),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 textAlign = TextAlign.End,
                 style = MaterialTheme.typography.bodySmall

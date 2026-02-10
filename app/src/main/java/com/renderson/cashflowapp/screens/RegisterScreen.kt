@@ -49,10 +49,10 @@ import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.dateStringToMillis
 import com.renderson.cashflowapp.extensions.label
-import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.formatForLocalCurrency
 import com.renderson.cashflowapp.extensions.getTodayAsString
 import com.renderson.cashflowapp.extensions.millisToDateString
-import com.renderson.cashflowapp.extensions.parseBrazilianCurrencyToDouble
+import com.renderson.cashflowapp.extensions.parseCurrencyToDouble
 import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.util.components.CashFlowAppBar
 import com.renderson.cashflowapp.util.components.CashFlowTextField
@@ -69,7 +69,7 @@ fun RegisterScreen(
 ) {
     val transactionToEdit by viewModel.transactionToEdit.collectAsState(initial = null)
     var amount by remember(transactionToEdit?.transactionId) {
-        mutableStateOf(transactionToEdit?.amount?.formatForBrazilianCurrency() ?: "")
+        mutableStateOf(transactionToEdit?.amount?.formatForLocalCurrency() ?: "")
     }
     var description by remember(transactionToEdit?.transactionId) {
         mutableStateOf(transactionToEdit?.description ?: "")
@@ -98,7 +98,7 @@ fun RegisterScreen(
         description.trim().isNotEmpty() &&
         dateStr.isNotEmpty() &&
         selectedType != null &&
-        amount.parseBrazilianCurrencyToDouble() > 0
+        amount.parseCurrencyToDouble() > 0
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -296,7 +296,7 @@ fun RegisterScreen(
                 Button(
                     onClick = {
                         val type = selectedType ?: return@Button
-                        val value = amount.parseBrazilianCurrencyToDouble()
+                        val value = amount.parseCurrencyToDouble()
                         if (transactionToEdit != null && transactionToEdit?.transactionId != 0) {
                             viewModel.updateTransaction(
                                 transactionId = transactionToEdit?.transactionId ?: 0,

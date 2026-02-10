@@ -67,7 +67,7 @@ import com.renderson.cashflowapp.enums.FilterPeriod
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.dateStringToMillis
-import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.formatForLocalCurrency
 import com.renderson.cashflowapp.extensions.getFirstDayOfCurrentMonth
 import com.renderson.cashflowapp.extensions.getLastDayOfCurrentMonth
 import com.renderson.cashflowapp.extensions.millisToDateString
@@ -554,7 +554,7 @@ private fun InvestimentosCard(
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
-                    text = totalInvestment.formatForBrazilianCurrency(),
+                    text = totalInvestment.formatForLocalCurrency(),
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -660,7 +660,7 @@ private fun CategoriasDestaqueCard(
             )
             topCategories.forEachIndexed { index, entry ->
                 Text(
-                    text = "${index + 1}. ${entry.key.label()} – ${entry.value.formatForBrazilianCurrency()}",
+                    text = "${index + 1}. ${entry.key.label()} – ${entry.value.formatForLocalCurrency()}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.secondary
                 )
@@ -688,7 +688,7 @@ private fun CurrentBalanceComposable(balance: Double) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 32.dp),
-                text = balance.formatForBrazilianCurrency(),
+                text = balance.formatForLocalCurrency(),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center
@@ -740,7 +740,7 @@ fun ItemCardList(item: CardItems) {
             }
             item.total?.let {
                 Text(
-                    text = item.total.formatForBrazilianCurrency(),
+                    text = item.total.formatForLocalCurrency(),
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -812,7 +812,7 @@ private fun MaiorGastoCard(
                 text = stringResource(
                     R.string.home_biggest_expense,
                     categoryName,
-                    total.formatForBrazilianCurrency()
+                    total.formatForLocalCurrency()
                 ),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall,

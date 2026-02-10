@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.renderson.cashflowapp.enums.TypeExtract
-import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.formatForLocalCurrency
 import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.model.Transaction
 
@@ -65,7 +65,7 @@ fun ItemExtractList(item: Transaction) {
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
-                        text = item.amount.formatForBrazilianCurrency(),
+                        text = item.amount.formatForLocalCurrency(),
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.bodySmall,
                     )

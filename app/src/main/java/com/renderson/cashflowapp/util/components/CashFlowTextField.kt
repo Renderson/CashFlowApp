@@ -27,7 +27,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import com.renderson.cashflowapp.extensions.parseBrazilianCurrencyToDouble
+import com.renderson.cashflowapp.extensions.parseCurrencyToDouble
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -81,7 +81,7 @@ fun CashFlowTextField(
                 var formattedValue = newValue.text
                 val digitsOnly = formattedValue.extractNumbers?.toString()?.take(CURRENCY_MAX_DIGITS) ?: ""
                 if (digitsOnly.length <= CURRENCY_MAX_DIGITS) {
-                    formattedValue = digitsOnly.asCurrencyPtBR()
+                    formattedValue = digitsOnly.asCurrencyFormatted()
                     val cursorPosition = formattedValue.length.coerceAtMost(formattedValue.length)
                     inputTf = TextFieldValue(text = formattedValue, selection = TextRange(cursorPosition))
                     onInputChange(formattedValue)
@@ -131,12 +131,16 @@ fun CashFlowTextField(
     }
 }
 
-fun String.asCurrencyPtBR(): String {
-    if (isEmpty()) return "R$ 0,00"
-    val intValue = extractNumbers ?: 0L
+/**
+ * Formata dígitos (valor em centavos) como moeda conforme o locale do dispositivo.
+ */
+private fun String.asCurrencyFormatted(): String {
+    if (isEmpty()) {
+        return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(0.0)
+    }
+    val intValue = filter { it.isDigit() }.take(CURRENCY_MAX_DIGITS).toLongOrNull() ?: 0L
     val currencyValue = intValue * 0.01
-    val formatter = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
-    return formatter.format(currencyValue)
+    return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(currencyValue)
 }
 
 private val String.extractNumbers: Long?
@@ -145,8 +149,8 @@ private val String.extractNumbers: Long?
 private fun initialTextFieldValue(value: String, type: String): TextFieldValue {
     val text = when (type) {
         TypeInputEnum.CURRENCY.type -> {
-            if (value.isBlank()) "R$ 0,00"
-            else (value.parseBrazilianCurrencyToDouble() * 100).toLong().toString().asCurrencyPtBR()
+            if (value.isBlank()) NumberFormat.getCurrencyInstance(Locale.getDefault()).format(0.0)
+            else (value.parseCurrencyToDouble() * 100).toLong().toString().asCurrencyFormatted()
         }
         else -> value
     }

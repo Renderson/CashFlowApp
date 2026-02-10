@@ -29,7 +29,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.data.Entry
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
-import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.formatForLocalCurrency
 import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.model.Transaction
 
@@ -137,7 +137,7 @@ fun SaldoChart(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                text = stringResource(R.string.chart_category_total, detail.category.label(), detail.total.formatForBrazilianCurrency()),
+                text = stringResource(R.string.chart_category_total, detail.category.label(), detail.total.formatForLocalCurrency()),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
