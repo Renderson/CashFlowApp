@@ -52,6 +52,7 @@
     <string name="home_biggest_expense_title">Highest expense in the period</string>
     <string name="home_biggest_expense">%1$s – %2$s</string>
     <string name="home_spent_by_category">Spending by category (%1$s)</string>
+    <string name="chart_category_total">%1$s total spent %2$s</string>
 
     <!-- FilterPeriod labels -->
     <string name="filter_period_current_month">Current month</string>
