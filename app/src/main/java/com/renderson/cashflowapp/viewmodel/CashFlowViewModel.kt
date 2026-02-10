@@ -10,6 +10,7 @@ import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.model.DataExtract
 import com.renderson.cashflowapp.model.Transaction
+import com.renderson.cashflowapp.usecase.ImportFromCsvUseCase
 import com.renderson.cashflowapp.usecase.SuggestTransactionCategoryUseCase
 import com.renderson.cashflowapp.enums.dateRangeFromToday
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,12 +21,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.io.InputStream
 import javax.inject.Inject
 
 @HiltViewModel
 class CashFlowViewModel @Inject internal constructor(
     private val repository: ClashFlowRepository,
-    private val suggestTransactionCategoryUseCase: SuggestTransactionCategoryUseCase
+    private val suggestTransactionCategoryUseCase: SuggestTransactionCategoryUseCase,
+    private val importFromCsvUseCase: ImportFromCsvUseCase
 ): ViewModel() {
 
     private val _extract = MutableLiveData<DataExtract>()
@@ -136,4 +139,7 @@ class CashFlowViewModel @Inject internal constructor(
             clearTransactionToEdit()
         }
     }
+
+    suspend fun importFromCsv(inputStream: InputStream): Result<com.renderson.cashflowapp.usecase.ImportResult> =
+        importFromCsvUseCase(inputStream)
 }

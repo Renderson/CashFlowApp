@@ -52,6 +52,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.datastore.core.android)
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.android.compiler)
 
@@ -85,6 +86,12 @@ dependencies {
 
     // Lottie (animations)
     implementation("com.airbnb.android:lottie-compose:6.7.0")
+
+    // DataStore Preferences
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    // Gson (backup JSON)
+    implementation("com.google.code.gson:gson:2.10.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

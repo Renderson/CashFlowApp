@@ -83,7 +83,8 @@ import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 @Composable
 fun HomeScreen(
     name: String,
-    viewModel: CashFlowViewModel
+    viewModel: CashFlowViewModel,
+    onSettingsClick: () -> Unit = {}
 ) {
     val filterPeriod by viewModel.filterPeriod.collectAsState()
     val filteredTransactions by viewModel.filteredTransactions.collectAsState(initial = emptyList())
@@ -143,7 +144,9 @@ fun HomeScreen(
                 colorViews = MaterialTheme.colorScheme.onSurface,
                 iconBackVisible = false,
                 showFilterIcon = true,
-                onFilterClick = { showFilterBottomSheet = true }
+                onFilterClick = { showFilterBottomSheet = true },
+                showSettingsIcon = true,
+                onSettingsClick = onSettingsClick
             )
         },
         content = { paddingValues ->

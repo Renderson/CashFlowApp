@@ -108,6 +108,37 @@ fun ExportScreen(
     val dateFormat = remember { SimpleDateFormat("yyyyMMdd_HHmm", Locale.US) }
     val fileName = "${context.getString(R.string.export_filename_prefix)}_${dateFormat.format(java.util.Date())}.csv"
 
+    val openDocumentLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { docUri ->
+            scope.launch {
+                try {
+                    context.contentResolver.openInputStream(docUri)?.use { inputStream ->
+                        viewModel.importFromCsv(inputStream).fold(
+                            onSuccess = { result ->
+                                val msg = when {
+                                    result.skippedCount > 0 && result.importedCount > 0 ->
+                                        context.getString(R.string.export_import_partial, result.importedCount, result.skippedCount)
+                                    result.importedCount > 0 ->
+                                        context.getString(R.string.export_import_success, result.importedCount)
+                                    else ->
+                                        context.getString(R.string.export_import_error)
+                                }
+                                snackbarHostState.showSnackbar(msg)
+                            },
+                            onFailure = {
+                                snackbarHostState.showSnackbar(context.getString(R.string.export_import_error))
+                            }
+                        )
+                    } ?: snackbarHostState.showSnackbar(context.getString(R.string.export_import_error))
+                } catch (e: Exception) {
+                    snackbarHostState.showSnackbar(context.getString(R.string.export_import_error))
+                }
+            }
+        }
+    }
+
     val createDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/csv")
     ) { uri ->
@@ -278,6 +309,21 @@ fun ExportScreen(
                         .height(48.dp)
                 ) {
                     Text(stringResource(R.string.export_button))
+                }
+
+                Text(
+                    text = stringResource(R.string.export_import_csv_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+
+                Button(
+                    onClick = { openDocumentLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "*/*")) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text(stringResource(R.string.export_import_csv))
                 }
             }
         }

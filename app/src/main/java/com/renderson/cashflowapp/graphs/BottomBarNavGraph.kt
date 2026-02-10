@@ -19,6 +19,7 @@ import com.renderson.cashflowapp.screens.ExportScreen
 import com.renderson.cashflowapp.screens.ExtractScreen
 import com.renderson.cashflowapp.screens.HomeScreen
 import com.renderson.cashflowapp.screens.SearchScreen
+import com.renderson.cashflowapp.screens.SettingsScreen
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
 @Composable
@@ -36,7 +37,8 @@ fun BottomNavGraph(
         composable(route = BottomNavItem.Home.route) {
             HomeScreen(
                 viewModel = viewModel,
-                name = stringResource(BottomNavItem.Home.titleRes)
+                name = stringResource(BottomNavItem.Home.titleRes),
+                onSettingsClick = { navController.navigate("settings") }
             )
         }
         composable(route = BottomNavItem.Extract.route) {
@@ -53,6 +55,9 @@ fun BottomNavGraph(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )
+        }
+        composable(route = "settings") {
+            SettingsScreen(onBack = { navController.popBackStack() })
         }
         composable(route = "search") {
             SearchScreen(

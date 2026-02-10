@@ -45,6 +45,15 @@ interface DataExtractDao {
     @Query("DELETE FROM transactions WHERE transactionId = :id")
     suspend fun deleteTransaction(id: Int)
 
+    @Query("DELETE FROM transactions")
+    suspend fun deleteAllTransactions()
+
+    @Query("DELETE FROM months")
+    suspend fun deleteAllMonths()
+
+    @Query("DELETE FROM years")
+    suspend fun deleteAllYears()
+
     @Query("SELECT * FROM years")
     fun getAllYears(): Flow<List<YearWithMonths>>
 

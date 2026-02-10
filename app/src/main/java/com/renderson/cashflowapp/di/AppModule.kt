@@ -6,6 +6,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.renderson.cashflowapp.classifier.TransactionCategoryClassifier
 import com.renderson.cashflowapp.data.ClashFlowDatabase
+import com.renderson.cashflowapp.data.preferences.SettingsDataStore
 import com.renderson.cashflowapp.usecase.SuggestTransactionCategoryUseCase
 import dagger.Module
 import dagger.Provides
@@ -44,4 +45,9 @@ object AppModule {
         classifier: TransactionCategoryClassifier
     ): SuggestTransactionCategoryUseCase =
         SuggestTransactionCategoryUseCase(classifier)
+
+    @Singleton
+    @Provides
+    fun provideSettingsDataStore(@ApplicationContext context: Context): SettingsDataStore =
+        SettingsDataStore(context)
 }

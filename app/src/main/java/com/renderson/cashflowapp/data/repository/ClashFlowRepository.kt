@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import com.renderson.cashflowapp.data.ClashFlowDatabase
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
+import com.renderson.cashflowapp.model.BackupTransaction
 import com.renderson.cashflowapp.model.DataExtract
 import com.renderson.cashflowapp.model.MonthEntity
 import com.renderson.cashflowapp.model.Months
@@ -12,6 +13,7 @@ import com.renderson.cashflowapp.model.TransactionEntity
 import com.renderson.cashflowapp.model.YearEntity
 import com.renderson.cashflowapp.model.Years
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -91,6 +93,25 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
 
     suspend fun deleteTransaction(transactionId: Int) {
         db.deleteTransaction(transactionId)
+    }
+
+    suspend fun getExtractSnapshot(): DataExtract = getExtract().first()
+
+    suspend fun restoreFromBackup(transactions: List<BackupTransaction>) {
+        database.withTransaction {
+            db.deleteAllTransactions()
+            db.deleteAllMonths()
+            db.deleteAllYears()
+        }
+        transactions.forEach { bt ->
+            val type = try {
+                TypeExtract.valueOf(bt.type)
+            } catch (e: IllegalArgumentException) {
+                TypeExtract.PAYMENT
+            }
+            val category = TransactionCategory.fromString(bt.category)
+            addTransaction(bt.date, bt.description, type, category, bt.amount)
+        }
     }
 
     fun getExtract(): Flow<DataExtract> {

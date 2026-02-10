@@ -107,4 +107,31 @@
     <string name="export_csv_column_type">Type</string>
     <string name="export_csv_column_category">Category</string>
     <string name="export_csv_column_amount">Amount</string>
+    <string name="export_import_csv">Import CSV</string>
+    <string name="export_import_csv_desc">Add transactions from a CSV file</string>
+    <string name="export_import_success">%1$d transactions imported</string>
+    <string name="export_import_error">Error importing CSV</string>
+    <string name="export_import_partial">%1$d imported, %2$d skipped</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+
+    <!-- Settings Backup -->
+    <string name="settings_backup">Backup</string>
+    <string name="settings_backup_export">Export backup</string>
+    <string name="settings_backup_export_desc">Saves a full copy of your data</string>
+    <string name="settings_backup_restore">Restore</string>
+    <string name="settings_backup_restore_desc">Restores data from a backup file</string>
+    <string name="settings_backup_restore_confirm_title">Restore backup?</string>
+    <string name="settings_backup_restore_confirm_message">This will replace all current data. This action cannot be undone.</string>
+    <string name="settings_backup_export_success">Backup exported</string>
+    <string name="settings_backup_export_error">Error exporting backup</string>
+    <string name="settings_backup_restore_success">Backup restored</string>
+    <string name="settings_backup_restore_error">Error restoring backup</string>
+    <string name="settings_backup_filename_prefix">cashflow_backup</string>
 </resources>

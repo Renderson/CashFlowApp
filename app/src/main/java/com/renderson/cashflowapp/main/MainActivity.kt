@@ -9,20 +9,23 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.renderson.cashflowapp.data.preferences.SettingsDataStore
 import com.renderson.cashflowapp.graphs.RootNavigationGraph
-import com.renderson.cashflowapp.ui.theme.CashFlowAppTheme
+import com.renderson.cashflowapp.ui.theme.ThemeProvider
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    @Inject
+    lateinit var settingsDataStore: SettingsDataStore
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CashFlowAppTheme(
-                dynamicColor = false
-            ) {
+            ThemeProvider(settingsDataStore = settingsDataStore) {
                 val viewModel: CashFlowViewModel = hiltViewModel()
                 Surface(
                     modifier = Modifier.fillMaxSize(),

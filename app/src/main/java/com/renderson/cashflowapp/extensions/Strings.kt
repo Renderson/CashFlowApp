@@ -62,6 +62,21 @@ fun String.toDisplayDate(): String {
     }
 }
 
+/**
+ * Converte string de data (dd/MM/yyyy ou yyyy-MM-dd) para formato de armazenamento yyyy-MM-dd.
+ * @return yyyy-MM-dd ou null se inválido
+ */
+fun String.parseDisplayDateToStorage(): String? {
+    return try {
+        val trimmed = trim()
+        val date = dateFormatDisplay.parse(trimmed)
+            ?: dateFormatStorage.parse(trimmed)
+        date?.let { dateFormatStorage.format(it) }
+    } catch (_: Exception) {
+        null
+    }
+}
+
 fun String.formatMonthYear(): String {
     val inputDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
     val date = inputDateFormat.parse(this)

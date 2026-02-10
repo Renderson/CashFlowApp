@@ -65,7 +65,10 @@ fun MainScreen(
             BottomBar(navController = navController)
         },
         floatingActionButton = {
-            if (currentDestination?.route != "search" && currentDestination?.route != "export") {
+            if (currentDestination?.route != "search" &&
+                currentDestination?.route != "export" &&
+                currentDestination?.route != "settings"
+            ) {
                 ExtendedFloatingActionButton(
                     onClick = { onFabClick.invoke() },
                     modifier = Modifier.scale(if (hasNoData) fabScale else 1f),
