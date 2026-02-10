@@ -1,3 +1,66 @@
 <resources>
     <string name="app_name">CashFlowApp</string>
+
+    <!-- Busca / Search -->
+    <string name="search_hint_transaction">Descrição, categoria, tipo ou data</string>
+    <string name="search_chip_all">Tudo</string>
+    <string name="search_chip_30_days">30 dias</string>
+    <string name="search_chip_15_days">15 dias</string>
+    <string name="search_chip_7_days">7 dias</string>
+    <string name="search_empty_list">Nenhum movimento cadastrado</string>
+    <string name="search_empty_result">Nenhum movimento encontrado para essa busca</string>
+    <string name="search_back">Voltar</string>
+    <string name="search_clear">Limpar</string>
+
+    <!-- Extrato / Bank statement -->
+    <string name="statement_header_period">Movimentos período, %1$s</string>
+    <string name="statement_total_deposit">Total Depósito %1$s</string>
+    <string name="statement_total_payment">Total Pagamentos %1$s</string>
+    <string name="statement_empty_period_title">Nenhum movimento neste período</string>
+    <string name="statement_empty_period_subtitle">Toque em Registros para adicionar&#10;depósitos ou pagamentos</string>
+
+    <!-- Navegação / Main -->
+    <string name="fab_add_records">Registros</string>
+    <string name="fab_add_records_cd">Mais registros</string>
+
+    <!-- Home / Dashboard -->
+    <string name="home_total_in">Total &#10;Entradas</string>
+    <string name="home_total_out">Total &#10;Saídas</string>
+    <string name="home_filter_by_period">Filtrar por período</string>
+    <string name="home_start_date">Data inicial</string>
+    <string name="home_end_date">Data final</string>
+    <string name="home_pick_start_date">Escolher data inicial</string>
+    <string name="home_pick_end_date">Escolher data final</string>
+    <string name="home_filter">Filtrar</string>
+    <string name="home_ok">OK</string>
+    <string name="home_cancel">Cancelar</string>
+    <string name="home_recent_activities">Atividades recentes</string>
+    <string name="home_recent_empty">Nenhum movimento neste período</string>
+    <string name="home_investments">Investimentos</string>
+    <string name="home_investments_empty">Nenhum investimento neste período</string>
+    <string name="home_access">Acessar</string>
+    <string name="home_recent_title">Atividades &#10;recentes</string>
+    <string name="home_explore">Explorar</string>
+    <string name="home_no_movements">Sem movimentos</string>
+    <string name="home_highlight_categories">Categorias em destaque</string>
+    <string name="home_cash_value">Seu valor em caixa.</string>
+    <string name="home_summary_title">Resumo do período</string>
+    <string name="home_summary_counts">%1$d entradas • %2$d saídas</string>
+    <string name="home_biggest_expense_title">Maior gasto no período</string>
+    <string name="home_biggest_expense">%1$s – %2$s</string>
+
+    <!-- Register / Cadastro -->
+    <string name="register_ok">OK</string>
+    <string name="register_cancel">Cancelar</string>
+    <string name="register_type">Tipo</string>
+    <string name="register_type_in">Entrada</string>
+    <string name="register_type_out">Saída</string>
+    <string name="register_type_investment">Investimento</string>
+    <string name="register_category">Categoria</string>
+    <string name="register_amount_hint">Valor</string>
+    <string name="register_description_hint">Ex: Supermercado, Salário...</string>
+    <string name="register_date">Data</string>
+    <string name="register_pick_date">Escolher data</string>
+    <string name="register_save">Salvar</string>
+    <string name="register_delete">Deletar</string>
 </resources>

@@ -18,14 +18,14 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.CallMade
@@ -48,8 +48,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,8 +59,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.renderson.cashflowapp.R
 import com.renderson.cashflowapp.enums.FilterPeriod
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
@@ -265,7 +267,7 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "Filtrar por período",
+                            text = stringResource(R.string.home_filter_by_period),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -295,7 +297,7 @@ fun HomeScreen(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = "Data inicial",
+                                    text = stringResource(R.string.home_start_date),
                                     style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -309,7 +311,7 @@ fun HomeScreen(
                                             IconButton(onClick = { showStartDatePicker = true }) {
                                                 Icon(
                                                     imageVector = Icons.Filled.CalendarToday,
-                                                    contentDescription = "Escolher data inicial"
+                                                    contentDescription = stringResource(R.string.home_pick_start_date)
                                                 )
                                             }
                                         },
@@ -328,7 +330,7 @@ fun HomeScreen(
                                 }
 
                                 Text(
-                                    text = "Data final",
+                                    text = stringResource(R.string.home_end_date),
                                     style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -342,7 +344,7 @@ fun HomeScreen(
                                             IconButton(onClick = { showEndDatePicker = true }) {
                                                 Icon(
                                                     imageVector = Icons.Filled.CalendarToday,
-                                                    contentDescription = "Escolher data final"
+                                                    contentDescription = stringResource(R.string.home_pick_end_date)
                                                 )
                                             }
                                         },
@@ -370,7 +372,7 @@ fun HomeScreen(
                                         customStartDateStr <= customEndDateStr,
                                     modifier = Modifier.fillMaxWidth().height(48.dp)
                                 ) {
-                                    Text("Filtrar")
+                                    Text(stringResource(R.string.home_filter))
                                 }
                             }
                         }
@@ -389,12 +391,12 @@ fun HomeScreen(
                                     showStartDatePicker = false
                                 }
                             ) {
-                                Text("OK", color = MaterialTheme.colorScheme.primary)
+                                Text(stringResource(R.string.home_ok), color = MaterialTheme.colorScheme.primary)
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { showStartDatePicker = false }) {
-                                Text("Cancelar", color = MaterialTheme.colorScheme.onSurface)
+                                Text(stringResource(R.string.home_cancel), color = MaterialTheme.colorScheme.onSurface)
                             }
                         }
                     ) {
@@ -414,12 +416,12 @@ fun HomeScreen(
                                     showEndDatePicker = false
                                 }
                             ) {
-                                Text("OK", color = MaterialTheme.colorScheme.primary)
+                                Text(stringResource(R.string.home_ok), color = MaterialTheme.colorScheme.primary)
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { showEndDatePicker = false }) {
-                                Text("Cancelar", color = MaterialTheme.colorScheme.onSurface)
+                                Text(stringResource(R.string.home_cancel), color = MaterialTheme.colorScheme.onSurface)
                             }
                         }
                     ) {

@@ -42,9 +42,12 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.extensions.formatMonthYear
 import com.renderson.cashflowapp.extensions.getCurrentMonthKey
 import com.renderson.cashflowapp.extensions.toDisplayDate
+import androidx.compose.ui.res.stringResource
+import com.renderson.cashflowapp.R
 import com.renderson.cashflowapp.model.Months
 import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
@@ -123,18 +126,27 @@ fun BankStatementScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Movimentos período, ${month.month.formatMonthYear()}",
+                            text = stringResource(
+                                R.string.statement_header_period,
+                                month.month.formatMonthYear()
+                            ),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Total Deposíto ${deposit.formatForBrazilianCurrency()}",
+                            text = stringResource(
+                                R.string.statement_total_deposit,
+                                deposit.formatForBrazilianCurrency()
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.secondary
                         )
                         Text(
-                            text = "Total Pagamentos ${payment.formatForBrazilianCurrency()}",
+                            text = stringResource(
+                                R.string.statement_total_payment,
+                                payment.formatForBrazilianCurrency()
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.secondary
                         )
@@ -200,13 +212,13 @@ private fun EmptyStatementContent(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Nenhum movimento neste período",
+            text = stringResource(R.string.statement_empty_period_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Toque em Registros para adicionar\ndepósitos ou pagamentos",
+            text = stringResource(R.string.statement_empty_period_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
             textAlign = TextAlign.Center
@@ -215,7 +227,7 @@ private fun EmptyStatementContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MonthTab(month: String, isSelected: Boolean, onClick: () -> Unit) {
+private fun MonthTab(month: String, isSelected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(8.dp)
@@ -273,11 +285,7 @@ fun TransactionItem(
             }
         }
         Column(horizontalAlignment = Alignment.End) {
-            val type = when (transaction.type) {
-                TypeExtract.DEPOSIT -> "Deposíto"
-                TypeExtract.PAYMENT -> "Pagamento"
-                else -> "Investimento"
-            }
+            val type = transaction.type.label()
             Text(
                 text = transaction.amount.formatForBrazilianCurrency(),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,

@@ -36,16 +36,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.renderson.cashflowapp.R
+import com.renderson.cashflowapp.enums.SearchPeriod
 import com.renderson.cashflowapp.enums.TypeExtract
-import com.renderson.cashflowapp.extensions.dateStringToMillis
-import com.renderson.cashflowapp.extensions.toDisplayDate
+import com.renderson.cashflowapp.extensions.filterByQueryAndPeriod
 import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
-
-private enum class SearchPeriod {
-    ALL, DAYS_30, DAYS_15, DAYS_7
-}
 
 @OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -73,11 +71,11 @@ fun SearchScreen(
                     onValueChange = { searchQuery = it },
                     modifier = Modifier
                         .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
-                    placeholder = { Text("Descrição, categoria, tipo ou data") },
+                    placeholder = { Text(stringResource(R.string.search_hint_transaction)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Buscar",
+                            contentDescription = stringResource(R.string.search_back),
                             modifier = Modifier.size(20.dp).clickable {
                                 onBack()
                             }
@@ -89,8 +87,8 @@ fun SearchScreen(
                                 onClick = { searchQuery = "" }
                             ) {
                                 Icon(
-                                    imageVector = if (searchQuery.isEmpty()) Icons.Filled.Close else Icons.Filled.Clear,
-                                    contentDescription = if (searchQuery.isEmpty()) "Fechar busca" else "Limpar",
+                                    imageVector = Icons.Filled.Clear,
+                                    contentDescription = stringResource(R.string.search_clear),
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -120,44 +118,28 @@ fun SearchScreen(
                     FilterChip(
                         selected = selectedPeriod == SearchPeriod.ALL,
                         onClick = { selectedPeriod = SearchPeriod.ALL },
-                        label = { Text("Tudo") }
+                        label = { Text(stringResource(R.string.search_chip_all)) }
                     )
                     FilterChip(
                         selected = selectedPeriod == SearchPeriod.DAYS_30,
                         onClick = { selectedPeriod = SearchPeriod.DAYS_30 },
-                        label = { Text("30 dias") }
+                        label = { Text(stringResource(R.string.search_chip_30_days)) }
                     )
                     FilterChip(
                         selected = selectedPeriod == SearchPeriod.DAYS_15,
                         onClick = { selectedPeriod = SearchPeriod.DAYS_15 },
-                        label = { Text("15 dias") }
+                        label = { Text(stringResource(R.string.search_chip_15_days)) }
                     )
                     FilterChip(
                         selected = selectedPeriod == SearchPeriod.DAYS_7,
                         onClick = { selectedPeriod = SearchPeriod.DAYS_7 },
-                        label = { Text("7 dias") }
+                        label = { Text(stringResource(R.string.search_chip_7_days)) }
                     )
                 }
-                val query = searchQuery.trim().lowercase()
-                val nowMillis = System.currentTimeMillis()
-                val cutoffMillis: Long? = when (selectedPeriod) {
-                    SearchPeriod.ALL -> null
-                    SearchPeriod.DAYS_30 -> nowMillis - 30L * 24L * 60L * 60L * 1000L
-                    SearchPeriod.DAYS_15 -> nowMillis - 15L * 24L * 60L * 60L * 1000L
-                    SearchPeriod.DAYS_7 -> nowMillis - 7L * 24L * 60L * 60L * 1000L
-                }
-                val filteredList = allTransactions
-                    .filter { t ->
-                        query.isEmpty() ||
-                                t.description.lowercase().contains(query) ||
-                                t.category.displayName.lowercase().contains(query) ||
-                                searchTypeLabel(t.type).lowercase().contains(query) ||
-                                t.date.toDisplayDate().lowercase().contains(query)
-                    }
-                    .filter { t ->
-                        cutoffMillis == null || dateStringToMillis(t.date) >= cutoffMillis
-                    }
-                    .sortedByDescending { it.date }
+                val filteredList = allTransactions.filterByQueryAndPeriod(
+                    query = searchQuery,
+                    period = selectedPeriod
+                )
                 if (filteredList.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -166,7 +148,11 @@ fun SearchScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (allTransactions.isEmpty()) "Nenhum movimento cadastrado" else "Nenhum movimento encontrado para essa busca",
+                            text = if (allTransactions.isEmpty()) {
+                                stringResource(R.string.search_empty_list)
+                            } else {
+                                stringResource(R.string.search_empty_result)
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -195,10 +181,4 @@ fun SearchScreen(
             }
         }
     )
-}
-
-private fun searchTypeLabel(type: TypeExtract): String = when (type) {
-    TypeExtract.DEPOSIT -> "Deposíto"
-    TypeExtract.PAYMENT -> "Pagamento"
-    TypeExtract.INVESTMENT -> "Investimento"
 }

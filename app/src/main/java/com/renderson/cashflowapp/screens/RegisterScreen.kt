@@ -8,23 +8,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -41,17 +38,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.renderson.cashflowapp.R
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.dateStringToMillis
+import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
 import com.renderson.cashflowapp.extensions.getTodayAsString
 import com.renderson.cashflowapp.extensions.millisToDateString
-import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
 import com.renderson.cashflowapp.extensions.parseBrazilianCurrencyToDouble
 import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.util.components.CashFlowAppBar
@@ -112,12 +110,12 @@ fun RegisterScreen(
                         showDatePicker = false
                     }
                 ) {
-                    Text("OK", color = MaterialTheme.colorScheme.primary)
+                        Text(stringResource(R.string.register_ok), color = MaterialTheme.colorScheme.primary)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancelar", color = MaterialTheme.colorScheme.onSurface)
+                        Text(stringResource(R.string.register_cancel), color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         ) {
@@ -150,7 +148,7 @@ fun RegisterScreen(
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Tipo",
+                    text = stringResource(R.string.register_type),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -166,7 +164,7 @@ fun RegisterScreen(
                             activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     ) {
-                        Text("Entrada")
+                        Text(stringResource(R.string.register_type_in))
                     }
                     SegmentedButton(
                         selected = selectedType == TypeExtract.PAYMENT,
@@ -177,7 +175,7 @@ fun RegisterScreen(
                             activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     ) {
-                        Text("Saída")
+                        Text(stringResource(R.string.register_type_out))
                     }
                     SegmentedButton(
                         selected = selectedType == TypeExtract.INVESTMENT,
@@ -188,14 +186,14 @@ fun RegisterScreen(
                             activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     ) {
-                        Text("Investimento")
+                        Text(stringResource(R.string.register_type_investment))
                     }
                 }
 
                 if (transactionToEdit != null) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = "Categoria",
+                        text = stringResource(R.string.register_category),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -242,7 +240,7 @@ fun RegisterScreen(
                 CashFlowTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = amount,
-                    hint = "Valor",
+                    hint = stringResource(R.string.register_amount_hint),
                     inputType = TypeInputEnum.CURRENCY,
                     keyboardType = KeyboardType.Decimal,
                     maxLength = 16,
@@ -252,7 +250,7 @@ fun RegisterScreen(
                 CashFlowTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = description,
-                    hint = "Ex: Supermercado, Salário...",
+                    hint = stringResource(R.string.register_description_hint),
                     keyboardType = KeyboardType.Text,
                     capitalization = KeyboardCapitalization.Sentences,
                     maxLength = 120,
@@ -261,7 +259,7 @@ fun RegisterScreen(
 
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Data",
+                    text = stringResource(R.string.register_date),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -275,7 +273,7 @@ fun RegisterScreen(
                             IconButton(onClick = { showDatePicker = true }) {
                                 Icon(
                                     imageVector = Icons.Filled.CalendarToday,
-                                    contentDescription = "Escolher data"
+                                    contentDescription = stringResource(R.string.register_pick_date)
                                 )
                             }
                         },
@@ -321,7 +319,7 @@ fun RegisterScreen(
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     enabled = isFormValid
                 ) {
-                    Text("Salvar")
+                    Text(stringResource(R.string.register_save))
                 }
 
                 if (transactionToEdit != null && transactionToEdit?.transactionId != 0) {
@@ -333,7 +331,7 @@ fun RegisterScreen(
                         },
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                     ) {
-                        Text("Deletar")
+                        Text(stringResource(R.string.register_delete))
                     }
                 }
             }

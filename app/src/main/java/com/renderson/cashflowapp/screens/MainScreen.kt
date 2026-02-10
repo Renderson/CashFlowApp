@@ -28,6 +28,8 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.res.stringResource
+import com.renderson.cashflowapp.R
 import com.renderson.cashflowapp.graphs.BottomNavGraph
 import com.renderson.cashflowapp.graphs.BottomNavItem
 import com.renderson.cashflowapp.model.Transaction
@@ -67,8 +69,8 @@ fun MainScreen(
                 ExtendedFloatingActionButton(
                     onClick = { onFabClick.invoke() },
                     modifier = Modifier.scale(if (hasNoData) fabScale else 1f),
-                    icon = { Icon(Icons.Filled.Add, "Mais registros") },
-                    text = { Text(text = "Registros") },
+                    icon = { Icon(Icons.Filled.Add, stringResource(R.string.fab_add_records_cd)) },
+                    text = { Text(text = stringResource(R.string.fab_add_records)) },
                     expanded = false
                 )
             }
