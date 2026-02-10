@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.screens.ExtractScreen
 import com.renderson.cashflowapp.screens.HomeScreen
+import com.renderson.cashflowapp.screens.SearchScreen
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
 @Composable
@@ -38,7 +39,18 @@ fun BottomNavGraph(
             ExtractScreen(
                 viewModel = viewModel,
                 name = BottomNavItem.Extract.title,
-                onEditTransaction = onEditTransaction
+                onEditTransaction = onEditTransaction,
+                onSearchClick = { navController.navigate("search") }
+            )
+        }
+        composable(route = "search") {
+            SearchScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onEditTransaction = { transaction ->
+                    navController.popBackStack()
+                    onEditTransaction(transaction)
+                }
             )
         }
     }

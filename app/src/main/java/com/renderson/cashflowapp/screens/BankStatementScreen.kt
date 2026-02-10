@@ -5,17 +5,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,9 +42,9 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
-import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.extensions.formatMonthYear
 import com.renderson.cashflowapp.extensions.getCurrentMonthKey
+import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.model.Months
 import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
@@ -109,6 +108,7 @@ fun BankStatementScreen(
                 if (it.type == TypeExtract.DEPOSIT) deposit += it.amount
                 if (it.type == TypeExtract.PAYMENT) payment -= it.amount
             }
+
             if (month.transactions.isNotEmpty()) {
                 Box(
                     modifier = Modifier

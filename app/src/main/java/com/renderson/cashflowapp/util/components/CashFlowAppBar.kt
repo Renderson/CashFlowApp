@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,7 +32,9 @@ fun CashFlowAppBar(
     onIconBackClick: (() -> Unit)? = null,
     onIconHomeClick: (() -> Unit)? = null,
     showFilterIcon: Boolean = false,
-    onFilterClick: (() -> Unit)? = null
+    onFilterClick: (() -> Unit)? = null,
+    showSearchIcon: Boolean = false,
+    onSearchClick: (() -> Unit)? = null
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -74,6 +77,16 @@ fun CashFlowAppBar(
                             modifier = Modifier.size(23.dp),
                             tint = colorViews,
                             contentDescription = "Filtrar"
+                        )
+                    }
+                }
+                if (showSearchIcon) {
+                    IconButton(onClick = { onSearchClick?.invoke() }) {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            modifier = Modifier.size(23.dp),
+                            tint = colorViews,
+                            contentDescription = "Buscar"
                         )
                     }
                 }

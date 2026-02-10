@@ -42,6 +42,8 @@ fun MainScreen(
 ) {
 
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
     val extract by viewModel.extract.observeAsState()
     val hasNoData = extract?.years.isNullOrEmpty()
 
@@ -61,13 +63,15 @@ fun MainScreen(
             BottomBar(navController = navController)
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { onFabClick.invoke() },
-                modifier = Modifier.scale(if (hasNoData) fabScale else 1f),
-                icon = { Icon(Icons.Filled.Add, "Mais registros") },
-                text = { Text(text = "Registros") },
-                expanded = false
-            )
+            if (currentDestination?.route != "search") {
+                ExtendedFloatingActionButton(
+                    onClick = { onFabClick.invoke() },
+                    modifier = Modifier.scale(if (hasNoData) fabScale else 1f),
+                    icon = { Icon(Icons.Filled.Add, "Mais registros") },
+                    text = { Text(text = "Registros") },
+                    expanded = false
+                )
+            }
         }
     ) { innerPadding ->
         BottomNavGraph(
