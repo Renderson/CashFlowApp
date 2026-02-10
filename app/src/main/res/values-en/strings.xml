@@ -1,0 +1,89 @@
+<resources>
+    <string name="app_name">CashFlowApp</string>
+
+    <!-- Search -->
+    <string name="search_hint_transaction">Description, category, type or date</string>
+    <string name="search_chip_all">All</string>
+    <string name="search_chip_30_days">Last 30 days</string>
+    <string name="search_chip_15_days">Last 15 days</string>
+    <string name="search_chip_7_days">Last 7 days</string>
+    <string name="search_empty_list">No transactions recorded</string>
+    <string name="search_empty_result">No transactions found for this search</string>
+    <string name="search_back">Back</string>
+    <string name="search_clear">Clear</string>
+
+    <!-- Statement / Bank statement -->
+    <string name="statement_header_period">Transactions for the period, %1$s</string>
+    <string name="statement_total_deposit">Total deposits %1$s</string>
+    <string name="statement_total_payment">Total payments %1$s</string>
+    <string name="statement_empty_period_title">No transactions in this period</string>
+    <string name="statement_empty_period_subtitle">Tap Records to add&#10;deposits or payments</string>
+
+    <!-- Navigation / Main -->
+    <string name="nav_home">Home</string>
+    <string name="nav_extract">Statement</string>
+    <string name="nav_register">Records</string>
+    <string name="fab_add_records">Records</string>
+    <string name="fab_add_records_cd">More records</string>
+
+    <!-- Home / Dashboard -->
+    <string name="home_total_in">Total &#10;Incomes</string>
+    <string name="home_total_out">Total &#10;Expenses</string>
+    <string name="home_filter_by_period">Filter by period</string>
+    <string name="home_start_date">Start date</string>
+    <string name="home_end_date">End date</string>
+    <string name="home_pick_start_date">Choose start date</string>
+    <string name="home_pick_end_date">Choose end date</string>
+    <string name="home_filter">Filter</string>
+    <string name="home_ok">OK</string>
+    <string name="home_cancel">Cancel</string>
+    <string name="home_recent_activities">Recent activities</string>
+    <string name="home_recent_empty">No transactions in this period</string>
+    <string name="home_investments">Investments</string>
+    <string name="home_investments_empty">No investments in this period</string>
+    <string name="home_access">Access</string>
+    <string name="home_recent_title">Recent &#10;activities</string>
+    <string name="home_explore">Explore</string>
+    <string name="home_no_movements">No transactions</string>
+    <string name="home_highlight_categories">Highlighted categories</string>
+    <string name="home_cash_value">Your cash balance.</string>
+    <string name="home_summary_title">Period summary</string>
+    <string name="home_summary_counts">%1$d incomes • %2$d expenses</string>
+    <string name="home_biggest_expense_title">Highest expense in the period</string>
+    <string name="home_biggest_expense">%1$s – %2$s</string>
+    <string name="home_spent_by_category">Spending by category (%1$s)</string>
+
+    <!-- FilterPeriod labels -->
+    <string name="filter_period_current_month">Current month</string>
+    <string name="filter_period_three_months">Last 3 months</string>
+    <string name="filter_period_six_months">Last 6 months</string>
+    <string name="filter_period_one_year">Last 12 months</string>
+    <string name="filter_period_all">All</string>
+    <string name="filter_period_custom">Custom</string>
+
+    <!-- Transaction categories -->
+    <string name="category_alimentacao">Food</string>
+    <string name="category_conveniencia">Convenience</string>
+    <string name="category_transporte">Transport</string>
+    <string name="category_moradia">Housing</string>
+    <string name="category_lazer">Leisure</string>
+    <string name="category_deposito">Deposit</string>
+    <string name="category_cartao_credito">Credit card</string>
+    <string name="category_poupanca_cofrinho">Investment</string>
+    <string name="category_outros">Other</string>
+
+    <!-- Register / Form -->
+    <string name="register_ok">OK</string>
+    <string name="register_cancel">Cancel</string>
+    <string name="register_type">Type</string>
+    <string name="register_type_in">Income</string>
+    <string name="register_type_out">Expense</string>
+    <string name="register_type_investment">Investment</string>
+    <string name="register_category">Category</string>
+    <string name="register_amount_hint">Amount</string>
+    <string name="register_description_hint">E.g.: Groceries, Salary...</string>
+    <string name="register_date">Date</string>
+    <string name="register_pick_date">Choose date</string>
+    <string name="register_save">Save</string>
+    <string name="register_delete">Delete</string>
+</resources>

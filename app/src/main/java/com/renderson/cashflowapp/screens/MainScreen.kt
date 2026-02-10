@@ -122,14 +122,14 @@ fun RowScope.AddItem(
     NavigationBarItem(
         label = {
             Text(
-                text = screen.title,
+                text = stringResource(screen.titleRes),
                 color = MaterialTheme.colorScheme.onSurface
             )
         },
         icon = {
             Icon(
                 imageVector = if (destination) screen.selectedIcon else screen.unselectedIcon,
-                contentDescription = screen.title,
+                contentDescription = stringResource(screen.titleRes),
                 tint = MaterialTheme.colorScheme.onSurface
             )
         },

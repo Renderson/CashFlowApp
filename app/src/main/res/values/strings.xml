@@ -20,6 +20,8 @@
     <string name="statement_empty_period_subtitle">Toque em Registros para adicionar&#10;depósitos ou pagamentos</string>
 
     <!-- Navegação / Main -->
+    <string name="nav_home">Home</string>
+    <string name="nav_extract">Extrato</string>
     <string name="fab_add_records">Registros</string>
     <string name="fab_add_records_cd">Mais registros</string>
 
@@ -48,8 +50,29 @@
     <string name="home_summary_counts">%1$d entradas • %2$d saídas</string>
     <string name="home_biggest_expense_title">Maior gasto no período</string>
     <string name="home_biggest_expense">%1$s – %2$s</string>
+    <string name="home_spent_by_category">Gastos por categoria (%1$s)</string>
+
+    <!-- FilterPeriod labels -->
+    <string name="filter_period_current_month">Mês atual</string>
+    <string name="filter_period_three_months">3 meses</string>
+    <string name="filter_period_six_months">6 meses</string>
+    <string name="filter_period_one_year">1 ano</string>
+    <string name="filter_period_all">Tudo</string>
+    <string name="filter_period_custom">Personalizado</string>
+
+    <!-- Transaction categories -->
+    <string name="category_alimentacao">Alimentação</string>
+    <string name="category_conveniencia">Conveniência</string>
+    <string name="category_transporte">Transporte</string>
+    <string name="category_moradia">Moradia</string>
+    <string name="category_lazer">Lazer</string>
+    <string name="category_deposito">Depósito</string>
+    <string name="category_cartao_credito">Cartão de crédito</string>
+    <string name="category_poupanca_cofrinho">Investimento</string>
+    <string name="category_outros">Outros</string>
 
     <!-- Register / Cadastro -->
+    <string name="nav_register">Registros</string>
     <string name="register_ok">OK</string>
     <string name="register_cancel">Cancelar</string>
     <string name="register_type">Tipo</string>

@@ -40,8 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.renderson.cashflowapp.R
 import com.renderson.cashflowapp.enums.SearchPeriod
+import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.filterByQueryAndPeriod
+import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
@@ -136,9 +138,11 @@ fun SearchScreen(
                         label = { Text(stringResource(R.string.search_chip_7_days)) }
                     )
                 }
+                val categoryLabels = TransactionCategory.entries.associateWith { it.label() }
                 val filteredList = allTransactions.filterByQueryAndPeriod(
                     query = searchQuery,
-                    period = selectedPeriod
+                    period = selectedPeriod,
+                    categoryLabels = categoryLabels
                 )
                 if (filteredList.isEmpty()) {
                     Box(

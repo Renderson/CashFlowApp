@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.model.Transaction
 
 @Composable
@@ -38,7 +39,7 @@ fun ItemExtractList(item: Transaction) {
             ) {
                 Icon(
                     imageVector = item.category.icon,
-                    contentDescription = item.category.displayName,
+                    contentDescription = item.category.label(),
                     modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.secondary
                 )
@@ -59,7 +60,7 @@ fun ItemExtractList(item: Transaction) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = item.category.displayName,
+                        text = item.category.label(),
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.bodySmall,
                     )

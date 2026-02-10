@@ -4,13 +4,13 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-enum class FilterPeriod(val label: String) {
-    CURRENT_MONTH("Mês atual"),
-    THREE_MONTHS("3 meses"),
-    SIX_MONTHS("6 meses"),
-    ONE_YEAR("1 ano"),
-    ALL("Tudo"),
-    CUSTOM("Personalizado");
+enum class FilterPeriod {
+    CURRENT_MONTH,
+    THREE_MONTHS,
+    SIX_MONTHS,
+    ONE_YEAR,
+    ALL,
+    CUSTOM
 }
 
 private val dbDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)

@@ -1,6 +1,7 @@
 package com.renderson.cashflowapp.screens
 
 import android.annotation.SuppressLint
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +48,7 @@ import com.renderson.cashflowapp.R
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.dateStringToMillis
+import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
 import com.renderson.cashflowapp.extensions.getTodayAsString
 import com.renderson.cashflowapp.extensions.millisToDateString
@@ -62,7 +64,7 @@ import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 @Composable
 fun RegisterScreen(
     viewModel: CashFlowViewModel,
-    name: String,
+    @StringRes nameRes: Int,
     onClick: () -> Unit
 ) {
     val transactionToEdit by viewModel.transactionToEdit.collectAsState(initial = null)
@@ -127,7 +129,7 @@ fun RegisterScreen(
         modifier = Modifier.fillMaxWidth(),
         topBar = {
             CashFlowAppBar(
-                title = name,
+                title = stringResource(nameRes),
                 colorViews = MaterialTheme.colorScheme.onSurface,
                 onIconBackClick = {
                     viewModel.clearTransactionToEdit()
@@ -199,7 +201,7 @@ fun RegisterScreen(
                     )
                     AssistChip(
                         onClick = { showCategorySelector = !showCategorySelector },
-                        label = { Text(selectedCategory.displayName) },
+                        label = { Text(selectedCategory.label()) },
                         leadingIcon = {
                             Icon(
                                 imageVector = selectedCategory.icon,
@@ -223,7 +225,7 @@ fun RegisterScreen(
                                         viewModel.setSelectedCategory(category)
                                         showCategorySelector = false
                                     },
-                                    label = { Text(category.displayName) },
+                                    label = { Text(category.label()) },
                                     leadingIcon = {
                                         Icon(
                                             imageVector = category.icon,

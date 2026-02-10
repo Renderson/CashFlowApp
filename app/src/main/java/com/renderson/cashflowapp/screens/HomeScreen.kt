@@ -71,6 +71,7 @@ import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
 import com.renderson.cashflowapp.extensions.getFirstDayOfCurrentMonth
 import com.renderson.cashflowapp.extensions.getLastDayOfCurrentMonth
 import com.renderson.cashflowapp.extensions.millisToDateString
+import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.model.CardItems
 import com.renderson.cashflowapp.model.Transaction
@@ -118,13 +119,13 @@ fun HomeScreen(
 
     val itemsCards = listOf(
         CardItems(
-            title = "Total \nEntradas",
+            title = stringResource(R.string.home_total_in),
             type = TypeExtract.DEPOSIT,
             total = totalDeposit,
             icon = Icons.AutoMirrored.Outlined.CallReceived
         ),
         CardItems(
-            title = "Total \nSaídas",
+            title = stringResource(R.string.home_total_out),
             type = TypeExtract.PAYMENT,
             total = totalPayment,
             icon = Icons.AutoMirrored.Outlined.CallMade
@@ -176,7 +177,10 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 4.dp),
-                    text = "Gastos por categoria (${filterPeriod.label})",
+                    text = stringResource(
+                        R.string.home_spent_by_category,
+                        filterPeriod.label()
+                    ),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -220,7 +224,7 @@ fun HomeScreen(
                     maiorCategoria?.let { (category, total) ->
                         item {
                             MaiorGastoCard(
-                                categoryName = category.displayName,
+                                categoryName = category.label(),
                                 total = total
                             )
                         }
@@ -285,7 +289,7 @@ fun HomeScreen(
                                         }
                                     },
                                     label = {
-                                        Text(text = period.label)
+                                        Text(text = period.label())
                                     }
                                 )
                             }
@@ -447,14 +451,14 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "Atividades recentes",
+                            text = stringResource(R.string.home_recent_activities),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
 
                         if (recentTransactionsSheet.isEmpty()) {
                             Text(
-                                text = "Nenhum movimento neste período",
+                                text = stringResource(R.string.home_recent_empty),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -489,14 +493,14 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "Investimentos",
+                            text = stringResource(R.string.home_investments),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
 
                         if (investmentsSheet.isEmpty()) {
                             Text(
-                                text = "Nenhum investimento neste período",
+                                text = stringResource(R.string.home_investments_empty),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -545,7 +549,7 @@ private fun InvestimentosCard(
         ) {
             Column {
                 Text(
-                    text = "Investimentos",
+                    text = stringResource(R.string.home_investments),
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -563,7 +567,7 @@ private fun InvestimentosCard(
                 ) {
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
-                        text = "Acessar",
+                        text = stringResource(R.string.home_access),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -602,7 +606,7 @@ private fun AtividadesRecentesCard(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Atividades \nrecentes",
+                text = stringResource(R.string.home_recent_title),
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodyLarge,
             )
@@ -614,7 +618,7 @@ private fun AtividadesRecentesCard(
                 Spacer(modifier = Modifier.weight(1f))
                 if (count > 0) {
                     Text(
-                        text = "Explorar",
+                        text = stringResource(R.string.home_explore),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -626,7 +630,7 @@ private fun AtividadesRecentesCard(
                     )
                 } else {
                     Text(
-                        text = "Sem movimentos",
+                        text = stringResource(R.string.home_no_movements),
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.bodyLarge,
                     )
@@ -649,13 +653,13 @@ private fun CategoriasDestaqueCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Categorias em destaque",
+                text = stringResource(R.string.home_highlight_categories),
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodyLarge,
             )
             topCategories.forEachIndexed { index, entry ->
                 Text(
-                    text = "${index + 1}. ${entry.key.displayName} – ${entry.value.formatForBrazilianCurrency()}",
+                    text = "${index + 1}. ${entry.key.label()} – ${entry.value.formatForBrazilianCurrency()}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.secondary
                 )
@@ -695,7 +699,7 @@ private fun CurrentBalanceComposable(balance: Double) {
                         top = 2.dp,
                         bottom = 32.dp
                     ),
-                text = "Seu valor em caixa.",
+                text = stringResource(R.string.home_cash_value),
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center
@@ -763,12 +767,16 @@ private fun PeriodSummaryCard(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Resumo do período",
+                text = stringResource(R.string.home_summary_title),
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodyLarge,
             )
             Text(
-                text = "$countDeposits entradas • $countPayments saídas",
+                text = stringResource(
+                    R.string.home_summary_counts,
+                    countDeposits,
+                    countPayments
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -795,12 +803,16 @@ private fun MaiorGastoCard(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Maior gasto no período",
+                text = stringResource(R.string.home_biggest_expense_title),
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodyLarge,
             )
             Text(
-                text = "$categoryName – ${total.formatForBrazilianCurrency()}",
+                text = stringResource(
+                    R.string.home_biggest_expense,
+                    categoryName,
+                    total.formatForBrazilianCurrency()
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall,
             )

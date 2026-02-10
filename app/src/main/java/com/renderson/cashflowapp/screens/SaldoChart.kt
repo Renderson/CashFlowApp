@@ -27,6 +27,7 @@ import com.github.mikephil.charting.data.Entry
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.formatForBrazilianCurrency
+import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.model.Transaction
 
 /**
@@ -52,7 +53,7 @@ fun SaldoChart(
     data class CategorySliceDetail(val category: TransactionCategory, val total: Double)
 
     val detailsByLabel: Map<String, CategorySliceDetail> = totalsByCategory.associate { (category, total) ->
-        category.displayName to CategorySliceDetail(category, total)
+        category.label() to CategorySliceDetail(category, total)
     }
 
     var selectedSlice by remember { mutableStateOf<CategorySliceDetail?>(null) }
@@ -63,7 +64,7 @@ fun SaldoChart(
     }
 
     val entries = totalsByCategory.map { (category, total) ->
-        PieEntry(total.toFloat(), category.displayName)
+        PieEntry(total.toFloat(), category.label())
     }
 
     val textColorArgb = MaterialTheme.colorScheme.onSurface.toArgb()
@@ -133,7 +134,7 @@ fun SaldoChart(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                text = "${detail.category.displayName} total gasto ${detail.total.formatForBrazilianCurrency()}",
+                text = "${detail.category.label()} total gasto ${detail.total.formatForBrazilianCurrency()}",
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center

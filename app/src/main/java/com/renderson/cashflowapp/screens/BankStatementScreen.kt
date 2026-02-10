@@ -267,7 +267,7 @@ fun TransactionItem(
             ) {
                 Icon(
                     imageVector = transaction.category.icon,
-                    contentDescription = transaction.category.displayName,
+                    contentDescription = transaction.category.label(),
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.secondary
                 )
