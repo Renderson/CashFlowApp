@@ -61,6 +61,11 @@
     <string name="filter_period_all">Tudo</string>
     <string name="filter_period_custom">Personalizado</string>
 
+    <!-- Transaction types (Depósito, Pagamento, Investimento) -->
+    <string name="type_deposit">Depósito</string>
+    <string name="type_payment">Pagamento</string>
+    <string name="type_investment">Investimento</string>
+
     <!-- Transaction categories -->
     <string name="category_alimentacao">Alimentação</string>
     <string name="category_conveniencia">Conveniência</string>

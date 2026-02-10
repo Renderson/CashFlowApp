@@ -139,10 +139,12 @@ fun SearchScreen(
                     )
                 }
                 val categoryLabels = TransactionCategory.entries.associateWith { it.label() }
+                val typeLabels = TypeExtract.entries.associateWith { it.label() }
                 val filteredList = allTransactions.filterByQueryAndPeriod(
                     query = searchQuery,
                     period = selectedPeriod,
-                    categoryLabels = categoryLabels
+                    categoryLabels = categoryLabels,
+                    typeLabels = typeLabels
                 )
                 if (filteredList.isEmpty()) {
                     Box(

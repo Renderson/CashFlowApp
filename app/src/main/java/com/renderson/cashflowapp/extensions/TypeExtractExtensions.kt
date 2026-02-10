@@ -1,10 +1,9 @@
 package com.renderson.cashflowapp.extensions
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.renderson.cashflowapp.enums.TypeExtract
 
-fun TypeExtract.label(): String = when (this) {
-    TypeExtract.DEPOSIT -> "Deposíto"
-    TypeExtract.PAYMENT -> "Pagamento"
-    TypeExtract.INVESTMENT -> "Investimento"
-}
+@Composable
+fun TypeExtract.label(): String = stringResource(labelRes)
 

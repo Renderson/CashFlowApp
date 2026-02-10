@@ -2,6 +2,7 @@ package com.renderson.cashflowapp.extensions
 
 import com.renderson.cashflowapp.enums.SearchPeriod
 import com.renderson.cashflowapp.enums.TransactionCategory
+import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.model.Transaction
 
 /**
@@ -10,11 +11,13 @@ import com.renderson.cashflowapp.model.Transaction
  * - query: texto para buscar em descrição, categoria, tipo e data.
  * - period: intervalo relativo (Tudo, 30, 15, 7 dias).
  * - categoryLabels: mapa de categoria para nome localizado (para busca).
+ * - typeLabels: mapa de tipo para nome localizado (para busca).
  */
 fun List<Transaction>.filterByQueryAndPeriod(
     query: String,
     period: SearchPeriod,
-    categoryLabels: Map<TransactionCategory, String>
+    categoryLabels: Map<TransactionCategory, String>,
+    typeLabels: Map<TypeExtract, String>
 ): List<Transaction> {
     val normalizedQuery = query.trim().lowercase()
     val nowMillis = System.currentTimeMillis()
@@ -30,7 +33,7 @@ fun List<Transaction>.filterByQueryAndPeriod(
             normalizedQuery.isEmpty() ||
                     t.description.lowercase().contains(normalizedQuery) ||
                     (categoryLabels[t.category] ?: "").lowercase().contains(normalizedQuery) ||
-                    t.type.label().lowercase().contains(normalizedQuery) ||
+                    (typeLabels[t.type] ?: "").lowercase().contains(normalizedQuery) ||
                     t.date.toDisplayDate().lowercase().contains(normalizedQuery)
         }
         .filter { t ->
