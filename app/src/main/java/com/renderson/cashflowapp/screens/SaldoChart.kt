@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -69,14 +70,14 @@ fun SaldoChart(
 
     val textColorArgb = MaterialTheme.colorScheme.onSurface.toArgb()
     val colorPalette = listOf(
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.secondary,
-        MaterialTheme.colorScheme.tertiary,
-        MaterialTheme.colorScheme.error,
-        MaterialTheme.colorScheme.primaryContainer,
-        MaterialTheme.colorScheme.secondaryContainer,
-        MaterialTheme.colorScheme.tertiaryContainer,
-        MaterialTheme.colorScheme.outline
+        Color(0xFFA8D5BA),  // verde pastel
+        Color(0xFFA8C8E8),  // azul pastel
+        Color(0xFFF5D99C),  // amarelo suave
+        Color(0xFFF5B8C4),  // rosa pastel
+        Color(0xFFC9B8E8),  // roxo pastel
+        Color(0xFFA8E6E0),  // ciano pastel
+        Color(0xFFF5C4A8),  // coral pastel
+        Color(0xFFD0D0D5),  // cinza suave
     ).map { it.toArgb() }
 
     Column(modifier = modifier.fillMaxWidth()) {
