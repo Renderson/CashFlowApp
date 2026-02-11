@@ -1,6 +1,9 @@
 package com.renderson.cashflowapp.extensions
 
+import com.renderson.cashflowapp.enums.RecurringFrequency
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -8,6 +11,7 @@ import java.util.TimeZone
 
 private val dateFormatStorage = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
 private val dateFormatDisplay = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR"))
+private val isoFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
 fun getTodayAsString(): String = dateFormatStorage.format(Calendar.getInstance().time)
 
@@ -85,10 +89,12 @@ fun String.formatMonthYear(): String {
     return outputDateFormat.format(date ?: Date()).uppercase()
 }
 
-fun String.formatDate(): String {
-    val inputDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-    val date = inputDateFormat.parse(this)
-
-    val outputDateFormat = SimpleDateFormat("dd MMM", Locale.ENGLISH)
-    return outputDateFormat.format(date ?: Date()).uppercase()
+fun RecurringFrequency.defaultStartDateFrom(baseDate: String): String {
+    val base = runCatching { LocalDate.parse(baseDate, isoFormatter) }.getOrElse { LocalDate.now() }
+    val next = when (this) {
+        RecurringFrequency.WEEKLY -> base.plusWeeks(1)
+        RecurringFrequency.MONTHLY -> base.plusMonths(1)
+        RecurringFrequency.YEARLY -> base.plusYears(1)
+    }
+    return next.format(isoFormatter)
 }

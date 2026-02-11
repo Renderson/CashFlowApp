@@ -161,4 +161,12 @@
     <string name="recurring_frequency_monthly">Monthly</string>
     <string name="recurring_frequency_yearly">Yearly</string>
     <string name="recurring_validation_error">Enter a description and an amount greater than zero.</string>
+
+    <!-- Register recurring -->
+    <string name="register_recurring_toggle_title">Save as recurring</string>
+    <string name="register_recurring_helper_text">Future entries will be generated automatically using this frequency.</string>
+    <string name="register_recurring_frequency">Frequency</string>
+    <string name="register_recurring_start_date">First automatic entry</string>
+    <string name="register_recurring_end_date">End date (optional)</string>
+    <string name="register_recurring_end_date_placeholder">No end date</string>
 </resources>

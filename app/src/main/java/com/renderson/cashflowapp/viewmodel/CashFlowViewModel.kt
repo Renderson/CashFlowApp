@@ -6,9 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.renderson.cashflowapp.data.repository.ClashFlowRepository
 import com.renderson.cashflowapp.enums.FilterPeriod
+import com.renderson.cashflowapp.enums.RecurringFrequency
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.enums.dateRangeFromToday
+import com.renderson.cashflowapp.extensions.getTodayAsString
 import com.renderson.cashflowapp.extensions.getTodayAsString
 import com.renderson.cashflowapp.model.DataExtract
 import com.renderson.cashflowapp.model.RecurringTransaction
@@ -24,6 +26,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.InputStream
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -178,6 +182,44 @@ class CashFlowViewModel @Inject internal constructor(
     fun deleteRecurringTransaction(id: Int) {
         viewModelScope.launch {
             repository.deleteRecurringTransaction(id)
+            repository.generateDueRecurringTransactions(getTodayAsString())
+        }
+    }
+
+    fun createRecurringFromTransaction(
+        description: String,
+        type: TypeExtract,
+        category: TransactionCategory,
+        amount: Double,
+        originalTransactionDate: String,
+        startDate: String,
+        endDate: String?,
+        frequency: RecurringFrequency
+    ) {
+        viewModelScope.launch {
+            val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+            val today = runCatching { LocalDate.parse(getTodayAsString(), formatter) }.getOrElse { LocalDate.now() }
+            val originalDate = runCatching { LocalDate.parse(originalTransactionDate, formatter) }.getOrElse { today }
+            var next = runCatching { LocalDate.parse(startDate, formatter) }.getOrElse { originalDate }
+            if (!next.isAfter(originalDate)) {
+                next = frequency.nextDate(originalDate)
+            }
+            while (!next.isAfter(today)) {
+                next = frequency.nextDate(next)
+            }
+            val recurring = RecurringTransaction(
+                id = 0,
+                description = description,
+                type = type,
+                category = category,
+                amount = amount,
+                startDate = startDate,
+                endDate = endDate,
+                frequency = frequency,
+                nextOccurrence = next.format(formatter),
+                isActive = true
+            )
+            repository.addRecurringTransaction(recurring)
             repository.generateDueRecurringTransactions(getTodayAsString())
         }
     }

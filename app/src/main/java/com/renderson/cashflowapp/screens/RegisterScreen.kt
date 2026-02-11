@@ -3,17 +3,20 @@ package com.renderson.cashflowapp.screens
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -28,7 +31,9 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -45,12 +50,14 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.renderson.cashflowapp.R
+import com.renderson.cashflowapp.enums.RecurringFrequency
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.extensions.dateStringToMillis
-import com.renderson.cashflowapp.extensions.label
+import com.renderson.cashflowapp.extensions.defaultStartDateFrom
 import com.renderson.cashflowapp.extensions.formatForLocalCurrency
 import com.renderson.cashflowapp.extensions.getTodayAsString
+import com.renderson.cashflowapp.extensions.label
 import com.renderson.cashflowapp.extensions.millisToDateString
 import com.renderson.cashflowapp.extensions.parseCurrencyToDouble
 import com.renderson.cashflowapp.extensions.toDisplayDate
@@ -83,6 +90,17 @@ fun RegisterScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var showCategorySelector by remember { mutableStateOf(false) }
     val selectedCategory by viewModel.selectedCategory.collectAsState(initial = TransactionCategory.OUTROS)
+    var isRecurring by remember(transactionToEdit?.transactionId) { mutableStateOf(false) }
+    var recurringFrequency by remember(transactionToEdit?.transactionId) {
+        mutableStateOf(RecurringFrequency.MONTHLY)
+    }
+    var recurringStartDate by remember(transactionToEdit?.transactionId) {
+        mutableStateOf(RecurringFrequency.MONTHLY.defaultStartDateFrom(dateStr))
+    }
+    var recurringEndDate by remember(transactionToEdit?.transactionId) { mutableStateOf("") }
+    var showRecurringStartPicker by remember { mutableStateOf(false) }
+    var showRecurringEndPicker by remember { mutableStateOf(false) }
+    var recurringStartManuallyEdited by remember { mutableStateOf(false) }
 
     LaunchedEffect(description) {
         if (transactionToEdit == null) {
@@ -90,15 +108,15 @@ fun RegisterScreen(
         }
     }
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = dateStringToMillis(getTodayAsString()),
+        initialSelectedDateMillis = dateStringToMillis(dateStr),
         yearRange = IntRange(2020, 2030)
     )
 
     val isFormValid = amount.trim().isNotEmpty() &&
-        description.trim().isNotEmpty() &&
-        dateStr.isNotEmpty() &&
-        selectedType != null &&
-        amount.parseCurrencyToDouble() > 0
+            description.trim().isNotEmpty() &&
+            dateStr.isNotEmpty() &&
+            selectedType != null &&
+            amount.parseCurrencyToDouble() > 0
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -107,21 +125,116 @@ fun RegisterScreen(
                 TextButton(
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
-                            dateStr = millisToDateString(millis)
+                            val newDate = millisToDateString(millis)
+                            dateStr = newDate
+                            if (isRecurring && !recurringStartManuallyEdited) {
+                                val nextDefault = recurringFrequency.defaultStartDateFrom(newDate)
+                                recurringStartDate = nextDefault
+                                if (recurringEndDate.isNotBlank() && recurringEndDate < nextDefault) {
+                                    recurringEndDate = nextDefault
+                                }
+                            }
                         }
                         showDatePicker = false
                     }
                 ) {
-                        Text(stringResource(R.string.register_ok), color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        stringResource(R.string.register_ok),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                        Text(stringResource(R.string.register_cancel), color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        stringResource(R.string.register_cancel),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
         ) {
             DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showRecurringStartPicker) {
+        val startState = rememberDatePickerState(
+            initialSelectedDateMillis = dateStringToMillis(recurringStartDate),
+            yearRange = IntRange(2020, 2030)
+        )
+        DatePickerDialog(
+            onDismissRequest = { showRecurringStartPicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        startState.selectedDateMillis?.let { millis ->
+                            val newStart = millisToDateString(millis)
+                            recurringStartDate = newStart
+                            recurringStartManuallyEdited = true
+                            if (recurringEndDate.isNotBlank() && recurringEndDate < newStart) {
+                                recurringEndDate = newStart
+                            }
+                        }
+                        showRecurringStartPicker = false
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.register_ok),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRecurringStartPicker = false }) {
+                    Text(
+                        stringResource(R.string.register_cancel),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        ) {
+            DatePicker(state = startState)
+        }
+    }
+
+    if (showRecurringEndPicker) {
+        val minEndDate = dateStringToMillis(recurringStartDate)
+        val initialEndMillis = recurringEndDate.takeIf { it.isNotBlank() }?.let { dateStringToMillis(it) } ?: minEndDate
+        val endState = rememberDatePickerState(
+            initialSelectedDateMillis = initialEndMillis,
+            yearRange = IntRange(2020, 2030),
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis >= minEndDate
+                override fun isSelectableYear(year: Int): Boolean = true
+            }
+        )
+        DatePickerDialog(
+            onDismissRequest = { showRecurringEndPicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        endState.selectedDateMillis?.let { millis ->
+                            recurringEndDate = millisToDateString(millis)
+                        }
+                        showRecurringEndPicker = false
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.register_ok),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRecurringEndPicker = false }) {
+                    Text(
+                        stringResource(R.string.register_cancel),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        ) {
+            DatePicker(state = endState)
         }
     }
 
@@ -155,7 +268,9 @@ fun RegisterScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
                 ) {
                     SegmentedButton(
                         selected = selectedType == TypeExtract.DEPOSIT,
@@ -211,7 +326,7 @@ fun RegisterScreen(
                         }
                     )
 
-                    AnimatedVisibility (showCategorySelector) {
+                    AnimatedVisibility(showCategorySelector) {
                         FlowRow(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -268,11 +383,11 @@ fun RegisterScreen(
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = dateStr.toDisplayDate(),
-                        onValueChange = { },
+                    onValueChange = { },
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            IconButton(onClick = { showDatePicker = true }) {
+                            IconButton(onClick = {}) {
                                 Icon(
                                     imageVector = Icons.Filled.CalendarToday,
                                     contentDescription = stringResource(R.string.register_pick_date)
@@ -289,8 +404,177 @@ fun RegisterScreen(
                     Box(
                         modifier = Modifier
                             .matchParentSize()
-                            .clickable { showDatePicker = true }
+                            .clickable {
+                                isRecurring = false
+                                showDatePicker = true
+                            }
                     )
+                }
+
+                if (transactionToEdit == null) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.medium
+                            )
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Refresh,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.register_recurring_toggle_title),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                                Text(
+                                    text = stringResource(R.string.register_recurring_helper_text),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                            Switch(
+                                checked = isRecurring,
+                                onCheckedChange = { checked ->
+                                    isRecurring = checked
+                                    if (checked) {
+                                        recurringStartManuallyEdited = false
+                                        recurringStartDate =
+                                            recurringFrequency.defaultStartDateFrom(dateStr)
+                                        recurringEndDate = ""
+                                    } else {
+                                        recurringStartManuallyEdited = false
+                                    }
+                                }
+                            )
+                        }
+
+                        AnimatedVisibility(isRecurring) {
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Text(
+                                    text = stringResource(R.string.register_recurring_frequency),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                SingleChoiceSegmentedButtonRow(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    RecurringFrequency.values().forEachIndexed { index, freq ->
+                                        val labelRes = when (freq) {
+                                            RecurringFrequency.WEEKLY -> R.string.recurring_frequency_weekly
+                                            RecurringFrequency.MONTHLY -> R.string.recurring_frequency_monthly
+                                            RecurringFrequency.YEARLY -> R.string.recurring_frequency_yearly
+                                        }
+                                        SegmentedButton(
+                                            selected = recurringFrequency == freq,
+                                            onClick = {
+                                                recurringFrequency = freq
+                                                recurringEndDate = ""
+                                                if (isRecurring) {
+                                                    recurringStartDate = freq.defaultStartDateFrom(dateStr)
+                                                    recurringStartManuallyEdited = false
+                                                }
+                                            },
+                                            shape = SegmentedButtonDefaults.itemShape(
+                                                index = index,
+                                                count = RecurringFrequency.values().size
+                                            ),
+                                            colors = SegmentedButtonDefaults.colors(
+                                                activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                                activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                            )
+                                        ) {
+                                            Text(stringResource(labelRes))
+                                        }
+                                    }
+                                }
+
+                                Text(
+                                    text = stringResource(R.string.register_recurring_start_date),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    OutlinedTextField(
+                                        value = recurringStartDate.toDisplayDate(),
+                                        onValueChange = { },
+                                        readOnly = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        trailingIcon = {
+                                            IconButton(onClick = {
+                                                showRecurringStartPicker = true
+                                            }) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.CalendarToday,
+                                                    contentDescription = stringResource(R.string.register_pick_date)
+                                                )
+                                            }
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .matchParentSize()
+                                            .clickable { showRecurringStartPicker = true }
+                                    )
+                                }
+
+                                Text(
+                                    text = stringResource(R.string.register_recurring_end_date),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    OutlinedTextField(
+                                        value = if (recurringEndDate.isBlank()) "" else recurringEndDate.toDisplayDate(),
+                                        onValueChange = { },
+                                        readOnly = true,
+                                        placeholder = { Text(stringResource(R.string.register_recurring_end_date_placeholder)) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        trailingIcon = {
+                                            IconButton(onClick = {
+                                                showRecurringEndPicker = true
+                                            }) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.CalendarToday,
+                                                    contentDescription = stringResource(R.string.register_pick_date)
+                                                )
+                                            }
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .matchParentSize()
+                                            .clickable { showRecurringEndPicker = true }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Button(
@@ -314,11 +598,25 @@ fun RegisterScreen(
                                 category = selectedCategory,
                                 amount = value
                             )
+                            if (isRecurring) {
+                                viewModel.createRecurringFromTransaction(
+                                    description = description.trim(),
+                                    type = type,
+                                    category = selectedCategory,
+                                    amount = value,
+                                    originalTransactionDate = dateStr,
+                                    startDate = recurringStartDate,
+                                    endDate = recurringEndDate.ifBlank { null },
+                                    frequency = recurringFrequency
+                                )
+                            }
                         }
                         viewModel.clearTransactionToEdit()
                         onClick.invoke()
                     },
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
                     enabled = isFormValid
                 ) {
                     Text(stringResource(R.string.register_save))
@@ -331,7 +629,9 @@ fun RegisterScreen(
                             viewModel.clearTransactionToEdit()
                             onClick.invoke()
                         },
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
                     ) {
                         Text(stringResource(R.string.register_delete))
                     }
