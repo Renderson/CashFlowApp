@@ -21,6 +21,27 @@ private val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
+private val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS recurring_transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                description TEXT NOT NULL,
+                type TEXT NOT NULL,
+                category TEXT NOT NULL,
+                amount REAL NOT NULL,
+                start_date TEXT NOT NULL,
+                end_date TEXT,
+                frequency TEXT NOT NULL,
+                next_occurrence TEXT NOT NULL,
+                is_active INTEGER NOT NULL DEFAULT 1
+            )
+            """.trimIndent()
+        )
+    }
+}
+
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -29,7 +50,7 @@ object AppModule {
     @Provides
     fun provideAppDatabase(@ApplicationContext context: Context): ClashFlowDatabase {
         return Room.databaseBuilder(context, ClashFlowDatabase::class.java, "cashFlow.db")
-            .addMigrations(MIGRATION_2_3)
+            .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
             .fallbackToDestructiveMigration()
             .build()
     }

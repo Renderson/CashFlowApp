@@ -134,4 +134,31 @@
     <string name="settings_backup_restore_success">Backup restaurado</string>
     <string name="settings_backup_restore_error">Erro ao restaurar backup</string>
     <string name="settings_backup_filename_prefix">cashflow_backup</string>
+    <string name="settings_recurring_section">Recorrências</string>
+    <string name="settings_recurring">Transações recorrentes</string>
+    <string name="settings_recurring_desc">Gerencie lançamentos automáticos</string>
+
+    <!-- Recorrências -->
+    <string name="recurring_title">Transações recorrentes</string>
+    <string name="recurring_empty">Nenhuma recorrência cadastrada</string>
+    <string name="recurring_amount_type">%1$s • %2$s</string>
+    <string name="recurring_next_occurrence">Próximo lançamento: %1$s</string>
+    <string name="recurring_add">Adicionar recorrência</string>
+    <string name="recurring_edit">Editar recorrência</string>
+    <string name="recurring_delete">Excluir recorrência</string>
+    <string name="recurring_delete_title">Excluir recorrência</string>
+    <string name="recurring_delete_message">Deseja excluir %1$s?</string>
+    <string name="recurring_field_description">Descrição</string>
+    <string name="recurring_field_amount">Valor</string>
+    <string name="recurring_field_type">Tipo</string>
+    <string name="recurring_field_category">Categoria</string>
+    <string name="recurring_field_frequency">Frequência</string>
+    <string name="recurring_field_start_date">Data inicial</string>
+    <string name="recurring_field_end_date">Data final</string>
+    <string name="recurring_field_end_date_hint">Opcional</string>
+    <string name="recurring_field_active">Ativo</string>
+    <string name="recurring_frequency_weekly">Semanal</string>
+    <string name="recurring_frequency_monthly">Mensal</string>
+    <string name="recurring_frequency_yearly">Anual</string>
+    <string name="recurring_validation_error">Informe descrição e valor maior que zero.</string>
 </resources>

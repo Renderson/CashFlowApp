@@ -67,7 +67,8 @@ fun MainScreen(
         floatingActionButton = {
             if (currentDestination?.route != "search" &&
                 currentDestination?.route != "export" &&
-                currentDestination?.route != "settings"
+                currentDestination?.route != "settings" &&
+                currentDestination?.route != "recurring"
             ) {
                 ExtendedFloatingActionButton(
                     onClick = { onFabClick.invoke() },

@@ -8,11 +8,13 @@ import com.renderson.cashflowapp.data.repository.ClashFlowRepository
 import com.renderson.cashflowapp.enums.FilterPeriod
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
+import com.renderson.cashflowapp.enums.dateRangeFromToday
+import com.renderson.cashflowapp.extensions.getTodayAsString
 import com.renderson.cashflowapp.model.DataExtract
+import com.renderson.cashflowapp.model.RecurringTransaction
 import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.usecase.ImportFromCsvUseCase
 import com.renderson.cashflowapp.usecase.SuggestTransactionCategoryUseCase
-import com.renderson.cashflowapp.enums.dateRangeFromToday
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -41,6 +43,9 @@ class CashFlowViewModel @Inject internal constructor(
     private val _customDateRange = MutableStateFlow<Pair<String, String>?>(null)
     private val _allTransactions = MutableStateFlow<List<Transaction>>(emptyList())
     val filterPeriod: StateFlow<FilterPeriod> = _filterPeriod.asStateFlow()
+
+    private val _recurringTransactions = MutableStateFlow<List<RecurringTransaction>>(emptyList())
+    val recurringTransactions: StateFlow<List<RecurringTransaction>> = _recurringTransactions.asStateFlow()
 
     val filteredTransactions: StateFlow<List<Transaction>> = combine(
         _allTransactions,
@@ -88,6 +93,8 @@ class CashFlowViewModel @Inject internal constructor(
 
     init {
         loadExtract()
+        observeRecurringTransactions()
+        generateRecurringTransactions()
     }
 
     private fun loadExtract() {
@@ -98,6 +105,20 @@ class CashFlowViewModel @Inject internal constructor(
                     .flatMap { it.months }
                     .flatMap { it.transactions }
             }
+        }
+    }
+
+    private fun observeRecurringTransactions() {
+        viewModelScope.launch {
+            repository.getRecurringTransactions().collect { recurring ->
+                _recurringTransactions.value = recurring
+            }
+        }
+    }
+
+    private fun generateRecurringTransactions() {
+        viewModelScope.launch {
+            repository.generateDueRecurringTransactions(getTodayAsString())
         }
     }
 
@@ -142,4 +163,22 @@ class CashFlowViewModel @Inject internal constructor(
 
     suspend fun importFromCsv(inputStream: InputStream): Result<com.renderson.cashflowapp.usecase.ImportResult> =
         importFromCsvUseCase(inputStream)
+
+    fun saveRecurringTransaction(recurringTransaction: RecurringTransaction) {
+        viewModelScope.launch {
+            if (recurringTransaction.id == 0) {
+                repository.addRecurringTransaction(recurringTransaction)
+            } else {
+                repository.updateRecurringTransaction(recurringTransaction)
+            }
+            repository.generateDueRecurringTransactions(getTodayAsString())
+        }
+    }
+
+    fun deleteRecurringTransaction(id: Int) {
+        viewModelScope.launch {
+            repository.deleteRecurringTransaction(id)
+            repository.generateDueRecurringTransactions(getTodayAsString())
+        }
+    }
 }

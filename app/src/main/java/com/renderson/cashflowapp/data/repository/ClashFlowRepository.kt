@@ -2,12 +2,15 @@ package com.renderson.cashflowapp.data.repository
 
 import androidx.room.withTransaction
 import com.renderson.cashflowapp.data.ClashFlowDatabase
+import com.renderson.cashflowapp.enums.RecurringFrequency
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
 import com.renderson.cashflowapp.model.BackupTransaction
 import com.renderson.cashflowapp.model.DataExtract
 import com.renderson.cashflowapp.model.MonthEntity
 import com.renderson.cashflowapp.model.Months
+import com.renderson.cashflowapp.model.RecurringTransaction
+import com.renderson.cashflowapp.model.RecurringTransactionEntity
 import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.model.TransactionEntity
 import com.renderson.cashflowapp.model.YearEntity
@@ -15,11 +18,16 @@ import com.renderson.cashflowapp.model.Years
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class ClashFlowRepository @Inject constructor(private val database: ClashFlowDatabase) {
 
     private val db = database.dataExtractDao()
+    private val recurringDao = database.recurringTransactionDao()
+
+    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
     suspend fun addTransaction(date: String, description: String, type: TypeExtract, category: TransactionCategory, amount: Double) {
         if (date.length < 10) return
@@ -140,4 +148,86 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
             )
         }
     }
+
+    fun getRecurringTransactions(): Flow<List<RecurringTransaction>> {
+        return recurringDao.getAll().map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    suspend fun addRecurringTransaction(recurringTransaction: RecurringTransaction) {
+        recurringDao.insert(recurringTransaction.toEntity())
+    }
+
+    suspend fun updateRecurringTransaction(recurringTransaction: RecurringTransaction) {
+        recurringDao.update(recurringTransaction.toEntity())
+    }
+
+    suspend fun deleteRecurringTransaction(id: Int) {
+        recurringDao.deleteById(id)
+    }
+
+    suspend fun generateDueRecurringTransactions(currentDate: String) {
+        val dueList = recurringDao.getDueUntil(currentDate)
+        if (dueList.isEmpty()) return
+        val today = runCatching { LocalDate.parse(currentDate, dateFormatter) }.getOrNull() ?: return
+        dueList.forEach { entity ->
+            var nextOccurrence = entity.nextOccurrence.toLocalDateOrNull() ?: return@forEach
+            val endDate = entity.endDate?.toLocalDateOrNull()
+            var updated = entity
+            var changed = false
+            while (!nextOccurrence.isAfter(today) && updated.isActive) {
+                addTransaction(
+                    date = nextOccurrence.format(dateFormatter),
+                    description = updated.description,
+                    type = TypeExtract.valueOf(updated.type),
+                    category = TransactionCategory.fromString(updated.category),
+                    amount = updated.amount
+                )
+                changed = true
+                val nextDate = RecurringFrequency.fromString(updated.frequency).nextDate(nextOccurrence)
+                val shouldDeactivate = endDate?.let { nextDate.isAfter(it) } ?: false
+                updated = updated.copy(
+                    nextOccurrence = nextDate.format(dateFormatter),
+                    isActive = if (shouldDeactivate) false else updated.isActive
+                )
+                if (shouldDeactivate) break
+                nextOccurrence = nextDate
+            }
+            if (changed) {
+                recurringDao.update(updated)
+            }
+        }
+    }
+
+    private fun RecurringTransactionEntity.toDomain(): RecurringTransaction =
+        RecurringTransaction(
+            id = id,
+            description = description,
+            type = runCatching { TypeExtract.valueOf(type) }.getOrDefault(TypeExtract.PAYMENT),
+            category = TransactionCategory.fromString(category),
+            amount = amount,
+            startDate = startDate,
+            endDate = endDate,
+            frequency = RecurringFrequency.fromString(frequency),
+            nextOccurrence = nextOccurrence,
+            isActive = isActive
+        )
+
+    private fun RecurringTransaction.toEntity(): RecurringTransactionEntity =
+        RecurringTransactionEntity(
+            id = id,
+            description = description,
+            type = type.name,
+            category = category.name,
+            amount = amount,
+            startDate = startDate,
+            endDate = endDate,
+            frequency = frequency.name,
+            nextOccurrence = nextOccurrence,
+            isActive = isActive
+        )
+
+    private fun String.toLocalDateOrNull(): LocalDate? =
+        runCatching { LocalDate.parse(this, dateFormatter) }.getOrNull()
 }

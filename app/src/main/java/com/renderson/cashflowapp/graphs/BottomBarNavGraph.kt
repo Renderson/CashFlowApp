@@ -20,6 +20,7 @@ import com.renderson.cashflowapp.screens.ExtractScreen
 import com.renderson.cashflowapp.screens.HomeScreen
 import com.renderson.cashflowapp.screens.SearchScreen
 import com.renderson.cashflowapp.screens.SettingsScreen
+import com.renderson.cashflowapp.screens.RecurringTransactionsScreen
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
 @Composable
@@ -57,7 +58,16 @@ fun BottomNavGraph(
             )
         }
         composable(route = "settings") {
-            SettingsScreen(onBack = { navController.popBackStack() })
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToRecurring = { navController.navigate("recurring") }
+            )
+        }
+        composable(route = "recurring") {
+            RecurringTransactionsScreen(
+                onBack = { navController.popBackStack() },
+                viewModel = viewModel
+            )
         }
         composable(route = "search") {
             SearchScreen(
