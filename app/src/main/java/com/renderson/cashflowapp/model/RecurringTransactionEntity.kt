@@ -12,6 +12,8 @@ data class RecurringTransactionEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Int = 0,
+    @ColumnInfo(name = "userId")
+    val userId: String = "",
     @ColumnInfo(name = "description")
     val description: String,
     @ColumnInfo(name = "type")

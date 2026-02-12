@@ -16,7 +16,7 @@ import com.renderson.cashflowapp.model.YearEntity
         TransactionEntity::class,
         RecurringTransactionEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class ClashFlowDatabase : RoomDatabase() {

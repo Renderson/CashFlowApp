@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.renderson.cashflowapp" />
+                  <option name="mobileSdkAppId" value="1:621640874797:android:0b8913cafbe618c59e31a4" />
+                  <option name="projectId" value="cashflow-76e4c" />
+                  <option name="projectNumber" value="621640874797" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

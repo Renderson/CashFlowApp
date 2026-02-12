@@ -10,7 +10,9 @@ data class YearEntity(
     @ColumnInfo(name = "yearId")
     val yearId: Int = 0,
     @ColumnInfo(name = "year")
-    val year: String = ""
+    val year: String = "",
+    @ColumnInfo(name = "userId")
+    val userId: String = ""
 )
 
 @Entity("months")

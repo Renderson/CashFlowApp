@@ -20,18 +20,24 @@ interface RecurringTransactionDao {
     @Delete
     suspend fun delete(entity: RecurringTransactionEntity)
 
-    @Query("DELETE FROM recurring_transactions WHERE id = :id")
-    suspend fun deleteById(id: Int)
+    @Query("DELETE FROM recurring_transactions WHERE id = :id AND userId = :userId")
+    suspend fun deleteById(id: Int, userId: String)
 
-    @Query("SELECT * FROM recurring_transactions WHERE id = :id LIMIT 1")
-    suspend fun getById(id: Int): RecurringTransactionEntity?
+    @Query("SELECT * FROM recurring_transactions WHERE id = :id AND userId = :userId LIMIT 1")
+    suspend fun getById(id: Int, userId: String): RecurringTransactionEntity?
 
-    @Query("SELECT * FROM recurring_transactions ORDER BY next_occurrence ASC")
-    fun getAll(): Flow<List<RecurringTransactionEntity>>
+    @Query("SELECT * FROM recurring_transactions WHERE userId = :userId ORDER BY next_occurrence ASC")
+    fun getAll(userId: String): Flow<List<RecurringTransactionEntity>>
 
-    @Query("SELECT * FROM recurring_transactions WHERE is_active = 1 ORDER BY next_occurrence ASC")
-    fun getActive(): Flow<List<RecurringTransactionEntity>>
+    @Query("SELECT * FROM recurring_transactions WHERE userId = :userId AND is_active = 1 ORDER BY next_occurrence ASC")
+    fun getActive(userId: String): Flow<List<RecurringTransactionEntity>>
 
-    @Query("SELECT * FROM recurring_transactions WHERE is_active = 1 AND next_occurrence <= :date ORDER BY next_occurrence ASC")
-    suspend fun getDueUntil(date: String): List<RecurringTransactionEntity>
+    @Query("SELECT * FROM recurring_transactions WHERE userId = :userId AND is_active = 1 AND next_occurrence <= :date ORDER BY next_occurrence ASC")
+    suspend fun getDueUntil(date: String, userId: String): List<RecurringTransactionEntity>
+
+    @Query("DELETE FROM recurring_transactions WHERE userId = :userId")
+    suspend fun deleteAllByUserId(userId: String)
+
+    @Query("UPDATE recurring_transactions SET userId = :newUserId WHERE userId = ''")
+    suspend fun migrateLegacyRecurringToUser(newUserId: String)
 }

@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.google.firebase.auth.FirebaseAuth
 import com.renderson.cashflowapp.classifier.TransactionCategoryClassifier
 import com.renderson.cashflowapp.data.ClashFlowDatabase
 import com.renderson.cashflowapp.data.preferences.SettingsDataStore
+import com.renderson.cashflowapp.data.repository.AuthRepository
 import com.renderson.cashflowapp.usecase.SuggestTransactionCategoryUseCase
 import dagger.Module
 import dagger.Provides
@@ -42,6 +44,15 @@ private val MIGRATION_3_4 = object : Migration(3, 4) {
     }
 }
 
+private val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE years ADD COLUMN userId TEXT DEFAULT ''")
+        db.execSQL("ALTER TABLE recurring_transactions ADD COLUMN userId TEXT DEFAULT ''")
+        db.execSQL("UPDATE years SET userId = '' WHERE userId IS NULL")
+        db.execSQL("UPDATE recurring_transactions SET userId = '' WHERE userId IS NULL")
+    }
+}
+
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -50,7 +61,7 @@ object AppModule {
     @Provides
     fun provideAppDatabase(@ApplicationContext context: Context): ClashFlowDatabase {
         return Room.databaseBuilder(context, ClashFlowDatabase::class.java, "cashFlow.db")
-            .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
+            .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
             .fallbackToDestructiveMigration()
             .build()
     }
@@ -71,4 +82,13 @@ object AppModule {
     @Provides
     fun provideSettingsDataStore(@ApplicationContext context: Context): SettingsDataStore =
         SettingsDataStore(context)
+
+    @Singleton
+    @Provides
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    @Singleton
+    @Provides
+    fun provideAuthRepository(firebaseAuth: FirebaseAuth): AuthRepository =
+        AuthRepository(firebaseAuth)
 }

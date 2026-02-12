@@ -17,27 +17,51 @@ import com.renderson.cashflowapp.model.YearEntity
 import com.renderson.cashflowapp.model.Years
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-class ClashFlowRepository @Inject constructor(private val database: ClashFlowDatabase) {
+class ClashFlowRepository @Inject constructor(
+    private val database: ClashFlowDatabase,
+    private val authRepository: AuthRepository
+) {
 
     private val db = database.dataExtractDao()
     private val recurringDao = database.recurringTransactionDao()
 
     private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
+    private fun requireUserId(): String? = authRepository.getCurrentUserId()
+
+    suspend fun migrateLegacyDataIfNeeded(userId: String) {
+        database.withTransaction {
+            db.migrateLegacyYearsToUser(userId)
+            recurringDao.migrateLegacyRecurringToUser(userId)
+        }
+    }
+
+    suspend fun deleteAllDataForUser(userId: String) {
+        database.withTransaction {
+            db.deleteTransactionsByUserId(userId)
+            db.deleteMonthsByUserId(userId)
+            db.deleteYearsByUserId(userId)
+            recurringDao.deleteAllByUserId(userId)
+        }
+    }
+
     suspend fun addTransaction(date: String, description: String, type: TypeExtract, category: TransactionCategory, amount: Double) {
+        val userId = requireUserId() ?: return
         if (date.length < 10) return
         val yearStr = date.take(4)
         val monthStr = "${date.take(7)}-01"
         database.withTransaction {
-            var yearEntity = db.getYearByYear(yearStr)
+            var yearEntity = db.getYearByYear(yearStr, userId)
             if (yearEntity == null) {
-                db.insertYear(YearEntity(yearId = 0, year = yearStr))
-                yearEntity = db.getYearByYear(yearStr) ?: return@withTransaction
+                db.insertYear(YearEntity(yearId = 0, year = yearStr, userId = userId))
+                yearEntity = db.getYearByYear(yearStr, userId) ?: return@withTransaction
             }
             val yearId = yearEntity.yearId
             var monthEntity = db.getMonthByYearIdAndMonth(yearId, monthStr)
@@ -68,15 +92,16 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
         category: TransactionCategory,
         amount: Double
     ) {
+        val userId = requireUserId() ?: return
         if (date.length < 10) return
         database.withTransaction {
             db.deleteTransaction(transactionId)
             val yearStr = date.take(4)
             val monthStr = "${date.take(7)}-01"
-            var yearEntity = db.getYearByYear(yearStr)
+            var yearEntity = db.getYearByYear(yearStr, userId)
             if (yearEntity == null) {
-                db.insertYear(YearEntity(yearId = 0, year = yearStr))
-                yearEntity = db.getYearByYear(yearStr) ?: return@withTransaction
+                db.insertYear(YearEntity(yearId = 0, year = yearStr, userId = userId))
+                yearEntity = db.getYearByYear(yearStr, userId) ?: return@withTransaction
             }
             val yearId = yearEntity.yearId
             var monthEntity = db.getMonthByYearIdAndMonth(yearId, monthStr)
@@ -103,13 +128,17 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
         db.deleteTransaction(transactionId)
     }
 
-    suspend fun getExtractSnapshot(): DataExtract = getExtract().first()
+    suspend fun getExtractSnapshot(): DataExtract {
+        val userId = requireUserId() ?: return DataExtract(emptyList())
+        return db.getAllData(userId).map { toDataExtract(it) }.first()
+    }
 
     suspend fun restoreFromBackup(transactions: List<BackupTransaction>) {
+        val userId = requireUserId() ?: return
         database.withTransaction {
-            db.deleteAllTransactions()
-            db.deleteAllMonths()
-            db.deleteAllYears()
+            db.deleteTransactionsByUserId(userId)
+            db.deleteMonthsByUserId(userId)
+            db.deleteYearsByUserId(userId)
         }
         transactions.forEach { bt ->
             val type = try {
@@ -122,53 +151,61 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
         }
     }
 
-    fun getExtract(): Flow<DataExtract> {
-        return db.getAllData().map { yearsWithMonths ->
-            DataExtract(
-                years = yearsWithMonths.map { yearWithMonths ->
-                    Years(
-                        year = yearWithMonths.year.year,
-                        months = yearWithMonths.months.map { monthWithTransactions ->
-                            Months(
-                                month = monthWithTransactions.month.month,
-                                transactions = monthWithTransactions.transactions.map { transactionEntity ->
-                                    Transaction(
-                                        transactionId = transactionEntity.transactionId,
-                                        date = transactionEntity.date,
-                                        description = transactionEntity.description,
-                                        type = TypeExtract.valueOf(transactionEntity.type),
-                                        category = TransactionCategory.fromString(transactionEntity.category),
-                                        amount = transactionEntity.amount
-                                    )
-                                }
-                            )
-                        }
-                    )
-                }
-            )
+    fun getExtract(): Flow<DataExtract> =
+        authRepository.currentUser.flatMapLatest { user ->
+            if (user == null) flowOf(DataExtract(emptyList()))
+            else db.getAllData(user.uid).map { toDataExtract(it) }
         }
-    }
 
-    fun getRecurringTransactions(): Flow<List<RecurringTransaction>> {
-        return recurringDao.getAll().map { list ->
-            list.map { it.toDomain() }
+    private fun toDataExtract(yearsWithMonths: List<com.renderson.cashflowapp.data.relations.YearWithMonths>): DataExtract =
+        DataExtract(
+            years = yearsWithMonths.map { yearWithMonths ->
+                Years(
+                    year = yearWithMonths.year.year,
+                    months = yearWithMonths.months.map { monthWithTransactions ->
+                        Months(
+                            month = monthWithTransactions.month.month,
+                            transactions = monthWithTransactions.transactions.map { transactionEntity ->
+                                Transaction(
+                                    transactionId = transactionEntity.transactionId,
+                                    date = transactionEntity.date,
+                                    description = transactionEntity.description,
+                                    type = TypeExtract.valueOf(transactionEntity.type),
+                                    category = TransactionCategory.fromString(transactionEntity.category),
+                                    amount = transactionEntity.amount
+                                )
+                            }
+                        )
+                    }
+                )
+            }
+        )
+
+    fun getRecurringTransactions(): Flow<List<RecurringTransaction>> =
+        authRepository.currentUser.flatMapLatest { user ->
+            if (user == null) flowOf(emptyList())
+            else recurringDao.getAll(user.uid).map { list -> list.map { it.toDomain() } }
         }
-    }
 
     suspend fun addRecurringTransaction(recurringTransaction: RecurringTransaction) {
-        recurringDao.insert(recurringTransaction.toEntity())
+        val userId = requireUserId() ?: return
+        recurringDao.insert(recurringTransaction.toEntity(userId))
     }
 
     suspend fun updateRecurringTransaction(recurringTransaction: RecurringTransaction) {
-        recurringDao.update(recurringTransaction.toEntity())
+        val userId = requireUserId() ?: return
+        val entity = recurringTransaction.toEntity(userId)
+        recurringDao.update(entity)
     }
 
     suspend fun deleteRecurringTransaction(id: Int) {
-        recurringDao.deleteById(id)
+        val userId = requireUserId() ?: return
+        recurringDao.deleteById(id, userId)
     }
 
     suspend fun generateDueRecurringTransactions(currentDate: String) {
-        val dueList = recurringDao.getDueUntil(currentDate)
+        val userId = requireUserId() ?: return
+        val dueList = recurringDao.getDueUntil(currentDate, userId)
         if (dueList.isEmpty()) return
         val today = runCatching { LocalDate.parse(currentDate, dateFormatter) }.getOrNull() ?: return
         dueList.forEach { entity ->
@@ -214,9 +251,10 @@ class ClashFlowRepository @Inject constructor(private val database: ClashFlowDat
             isActive = isActive
         )
 
-    private fun RecurringTransaction.toEntity(): RecurringTransactionEntity =
+    private fun RecurringTransaction.toEntity(userId: String): RecurringTransactionEntity =
         RecurringTransactionEntity(
             id = id,
+            userId = userId,
             description = description,
             type = type.name,
             category = category.name,

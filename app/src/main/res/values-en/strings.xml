@@ -124,6 +124,29 @@
     <string name="export_import_error">Error importing CSV</string>
     <string name="export_import_partial">%1$d imported, %2$d skipped</string>
 
+    <!-- Auth -->
+    <string name="auth_login">Sign in</string>
+    <string name="auth_create_account">Create account</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_confirm_password">Confirm password</string>
+    <string name="auth_email_hint">your@email.com</string>
+    <string name="auth_password_hint">Minimum 6 characters</string>
+    <string name="auth_back_to_login">Back to login</string>
+    <string name="auth_error_invalid_credentials">Invalid email or password</string>
+    <string name="auth_error_weak_password">Password must be at least 6 characters</string>
+    <string name="auth_error_password_mismatch">Passwords do not match</string>
+    <string name="auth_error_email_in_use">This email is already in use</string>
+    <string name="auth_error_generic">An error occurred. Please try again.</string>
+    <string name="auth_section_account">Account</string>
+    <string name="auth_delete_account">Delete account</string>
+    <string name="auth_delete_account_desc">Removes your account and all data</string>
+    <string name="auth_delete_account_confirm_title">Delete account?</string>
+    <string name="auth_delete_account_confirm_message">Enter your password to confirm. This action cannot be undone.</string>
+    <string name="auth_delete_account_password_hint">Password</string>
+    <string name="auth_delete_account_error_password">Incorrect password</string>
+    <string name="auth_sign_out">Sign out</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_appearance">Appearance</string>

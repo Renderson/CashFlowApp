@@ -124,6 +124,29 @@
     <string name="export_import_error">Erro ao importar CSV</string>
     <string name="export_import_partial">%1$d importadas, %2$d ignoradas</string>
 
+    <!-- Auth -->
+    <string name="auth_login">Entrar</string>
+    <string name="auth_create_account">Criar conta</string>
+    <string name="auth_email">E-mail</string>
+    <string name="auth_password">Senha</string>
+    <string name="auth_confirm_password">Confirmar senha</string>
+    <string name="auth_email_hint">seu@email.com</string>
+    <string name="auth_password_hint">Mínimo 6 caracteres</string>
+    <string name="auth_back_to_login">Voltar para login</string>
+    <string name="auth_error_invalid_credentials">E-mail ou senha inválidos</string>
+    <string name="auth_error_weak_password">A senha deve ter pelo menos 6 caracteres</string>
+    <string name="auth_error_password_mismatch">As senhas não coincidem</string>
+    <string name="auth_error_email_in_use">Este e-mail já está em uso</string>
+    <string name="auth_error_generic">Ocorreu um erro. Tente novamente.</string>
+    <string name="auth_section_account">Conta</string>
+    <string name="auth_delete_account">Excluir conta</string>
+    <string name="auth_delete_account_desc">Remove sua conta e todos os dados</string>
+    <string name="auth_delete_account_confirm_title">Excluir conta?</string>
+    <string name="auth_delete_account_confirm_message">Digite sua senha para confirmar. Esta ação não pode ser desfeita.</string>
+    <string name="auth_delete_account_password_hint">Senha</string>
+    <string name="auth_delete_account_error_password">Senha incorreta</string>
+    <string name="auth_sign_out">Sair</string>
+
     <!-- Settings -->
     <string name="settings_title">Configurações</string>
     <string name="settings_appearance">Aparência</string>
