@@ -81,6 +81,8 @@
     <string name="category_conveniencia">Convenience</string>
     <string name="category_transporte">Transport</string>
     <string name="category_moradia">Housing</string>
+    <string name="category_saude">Health</string>
+    <string name="category_educacao">Education</string>
     <string name="category_lazer">Leisure</string>
     <string name="category_deposito">Deposit</string>
     <string name="category_cartao_credito">Credit card</string>

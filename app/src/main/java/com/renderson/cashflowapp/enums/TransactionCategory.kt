@@ -7,8 +7,10 @@ import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalHospital
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.TheaterComedy
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -19,6 +21,8 @@ enum class TransactionCategory(@StringRes val displayNameRes: Int, val icon: Ima
     CONVENIENCIA(R.string.category_conveniencia, Icons.Default.Store),
     TRANSPORTE(R.string.category_transporte, Icons.Default.DirectionsCar),
     MORADIA(R.string.category_moradia, Icons.Default.Home),
+    SAUDE(R.string.category_saude, Icons.Default.LocalHospital),
+    EDUCACAO(R.string.category_educacao, Icons.Default.School),
     LAZER(R.string.category_lazer, Icons.Default.TheaterComedy),
     DEPOSITO(R.string.category_deposito, Icons.Default.AccountBalance),
     CARTAO_CREDITO(R.string.category_cartao_credito, Icons.Default.CreditCard),

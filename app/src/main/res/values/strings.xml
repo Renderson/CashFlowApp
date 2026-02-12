@@ -80,6 +80,8 @@
     <string name="category_conveniencia">Conveniência</string>
     <string name="category_transporte">Transporte</string>
     <string name="category_moradia">Moradia</string>
+    <string name="category_saude">Saúde</string>
+    <string name="category_educacao">Educação</string>
     <string name="category_lazer">Lazer</string>
     <string name="category_deposito">Depósito</string>
     <string name="category_cartao_credito">Cartão de crédito</string>
