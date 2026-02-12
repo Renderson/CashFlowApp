@@ -51,9 +51,13 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun createAccount(email: String, password: String, confirmPassword: String, onSuccess: () -> Unit) {
+    fun createAccount(name: String, email: String, password: String, confirmPassword: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _authError.value = null
+            if (name.isBlank()) {
+                _authError.value = "auth_error_empty_name"
+                return@launch
+            }
             if (password != confirmPassword) {
                 _authError.value = "auth_error_password_mismatch"
                 return@launch
@@ -63,7 +67,7 @@ class AuthViewModel @Inject constructor(
                 return@launch
             }
             _isLoading.value = true
-            authRepository.createAccount(email.trim(), password)
+            authRepository.createAccount(name.trim(), email.trim(), password)
                 .onSuccess {
                     clashFlowRepository.migrateLegacyDataIfNeeded(authRepository.getCurrentUserId()!!)
                     onSuccess()

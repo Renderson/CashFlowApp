@@ -127,6 +127,8 @@
     <!-- Auth -->
     <string name="auth_login">Sign in</string>
     <string name="auth_create_account">Create account</string>
+    <string name="auth_name">Name</string>
+    <string name="auth_name_hint">Your name</string>
     <string name="auth_email">Email</string>
     <string name="auth_password">Password</string>
     <string name="auth_confirm_password">Confirm password</string>
@@ -134,6 +136,8 @@
     <string name="auth_password_hint">Minimum 6 characters</string>
     <string name="auth_back_to_login">Back to login</string>
     <string name="auth_error_invalid_credentials">Invalid email or password</string>
+    <string name="auth_error_invalid_email">Enter a valid email address</string>
+    <string name="auth_error_empty_name">Enter your name</string>
     <string name="auth_error_weak_password">Password must be at least 6 characters</string>
     <string name="auth_error_password_mismatch">Passwords do not match</string>
     <string name="auth_error_email_in_use">This email is already in use</string>
@@ -146,6 +150,8 @@
     <string name="auth_delete_account_password_hint">Password</string>
     <string name="auth_delete_account_error_password">Incorrect password</string>
     <string name="auth_sign_out">Sign out</string>
+    <string name="auth_show_password">Show password</string>
+    <string name="auth_hide_password">Hide password</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>

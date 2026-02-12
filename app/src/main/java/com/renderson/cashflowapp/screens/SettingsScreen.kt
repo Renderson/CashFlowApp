@@ -12,14 +12,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Backup
-import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -42,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.renderson.cashflowapp.R
@@ -68,6 +71,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
     var deleteAccountPassword by remember { mutableStateOf("") }
+    var deleteAccountPasswordVisible by remember { mutableStateOf(false) }
     var deleteAccountError by remember { mutableStateOf<String?>(null) }
     val themeMode by viewModel.themeMode.collectAsState(initial = THEME_SYSTEM)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -306,6 +310,7 @@ fun SettingsScreen(
             onDismissRequest = {
                 showDeleteAccountDialog = false
                 deleteAccountPassword = ""
+                deleteAccountPasswordVisible = false
                 deleteAccountError = null
             },
             title = { Text(stringResource(R.string.auth_delete_account_confirm_title)) },
@@ -320,9 +325,17 @@ fun SettingsScreen(
                             deleteAccountError = null
                         },
                         label = { Text(stringResource(R.string.auth_delete_account_password_hint)) },
-                        visualTransformation = PasswordVisualTransformation(),
+                        visualTransformation = if (deleteAccountPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
-                        isError = deleteAccountError != null
+                        isError = deleteAccountError != null,
+                        trailingIcon = {
+                            IconButton(onClick = { deleteAccountPasswordVisible = !deleteAccountPasswordVisible }) {
+                                Icon(
+                                    imageVector = if (deleteAccountPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                    contentDescription = stringResource(if (deleteAccountPasswordVisible) R.string.auth_hide_password else R.string.auth_show_password)
+                                )
+                            }
+                        }
                     )
                     deleteAccountError?.let { errorKey ->
                         Spacer(modifier = Modifier.padding(top = 4.dp))
@@ -339,12 +352,13 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(
-                    onClick = {
+                        onClick = {
                         authViewModel.deleteAccount(
                             password = deleteAccountPassword,
                             onSuccess = {
                                 showDeleteAccountDialog = false
                                 deleteAccountPassword = ""
+                                deleteAccountPasswordVisible = false
                                 deleteAccountError = null
                             },
                             onError = { errorKey ->

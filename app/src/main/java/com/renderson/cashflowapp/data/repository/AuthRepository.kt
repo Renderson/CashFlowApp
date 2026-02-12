@@ -3,6 +3,7 @@ package com.renderson.cashflowapp.data.repository
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -33,8 +34,13 @@ class AuthRepository @Inject constructor(
         onFailure = { Result.failure(it) }
     )
 
-    suspend fun createAccount(email: String, password: String): Result<Unit> = runCatching {
+    suspend fun createAccount(name: String, email: String, password: String): Result<Unit> = runCatching {
         firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+        val user = firebaseAuth.currentUser ?: throw IllegalStateException("User not found after sign up")
+        val profileUpdates = UserProfileChangeRequest.Builder()
+            .setDisplayName(name.trim())
+            .build()
+        user.updateProfile(profileUpdates).await()
     }.fold(
         onSuccess = { Result.success(Unit) },
         onFailure = { Result.failure(it) }
