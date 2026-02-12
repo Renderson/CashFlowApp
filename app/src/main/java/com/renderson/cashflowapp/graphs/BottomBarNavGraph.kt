@@ -27,6 +27,7 @@ import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 fun BottomNavGraph(
     modifier: Modifier,
     navController: NavHostController,
+    userDisplayName: String,
     viewModel: CashFlowViewModel,
     onEditTransaction: (Transaction) -> Unit
 ) {
@@ -39,6 +40,7 @@ fun BottomNavGraph(
             HomeScreen(
                 viewModel = viewModel,
                 name = stringResource(BottomNavItem.Home.titleRes),
+                userDisplayName = userDisplayName,
                 onSettingsClick = { navController.navigate("settings") }
             )
         }

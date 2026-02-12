@@ -38,6 +38,7 @@ import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
+    userDisplayName: String,
     viewModel: CashFlowViewModel,
     onFabClick: () -> Unit,
     onEditTransaction: (Transaction) -> Unit
@@ -83,6 +84,7 @@ fun MainScreen(
         BottomNavGraph(
             modifier = Modifier.padding(innerPadding),
             navController = navController,
+            userDisplayName = userDisplayName,
             viewModel = viewModel,
             onEditTransaction = onEditTransaction
         )

@@ -96,6 +96,7 @@ import java.time.YearMonth
 fun HomeScreen(
     name: String,
     viewModel: CashFlowViewModel,
+    userDisplayName: String = "",
     onSettingsClick: () -> Unit = {}
 ) {
     val filterPeriod by viewModel.filterPeriod.collectAsState()
@@ -173,6 +174,19 @@ fun HomeScreen(
                     .padding(top = paddingValues.calculateTopPadding())
                     .verticalScroll(scrollState)
             ) {
+                // TODO name user
+                /*Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    text = if (userDisplayName.isNotBlank()) {
+                        stringResource(R.string.home_greeting, userDisplayName)
+                    } else {
+                        stringResource(R.string.home_greeting_fallback)
+                    },
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineMedium
+                )*/
                 val recentTransactions = filteredTransactions
                     .sortedByDescending { it.date }
                     .take(10)

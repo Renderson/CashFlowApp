@@ -26,6 +26,8 @@
     <string name="fab_add_records_cd">Mais registros</string>
 
     <!-- Home / Dashboard -->
+    <string name="home_greeting">Olá, %1$s!</string>
+    <string name="home_greeting_fallback">Olá!</string>
     <string name="home_total_in">Total &#10;Entradas</string>
     <string name="home_total_out">Total &#10;Saídas</string>
     <string name="home_filter_by_period">Filtrar por período</string>

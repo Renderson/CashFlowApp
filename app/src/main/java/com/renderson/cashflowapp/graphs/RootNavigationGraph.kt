@@ -74,6 +74,7 @@ fun RootNavigationGraph(
                 }
             } else {
                 MainScreen(
+                    userDisplayName = currentUser?.displayName.orEmpty(),
                     viewModel = cashFlowViewModel,
                     onFabClick = {
                         cashFlowViewModel.clearTransactionToEdit()
