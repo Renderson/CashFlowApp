@@ -2,11 +2,13 @@ package com.renderson.cashflowapp.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -23,7 +25,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -58,6 +64,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -66,19 +73,24 @@ import com.renderson.cashflowapp.R
 import com.renderson.cashflowapp.enums.FilterPeriod
 import com.renderson.cashflowapp.enums.TransactionCategory
 import com.renderson.cashflowapp.enums.TypeExtract
+import com.renderson.cashflowapp.extensions.label
+import com.renderson.cashflowapp.extensions.asMonthLabel
 import com.renderson.cashflowapp.extensions.dateStringToMillis
 import com.renderson.cashflowapp.extensions.formatForLocalCurrency
 import com.renderson.cashflowapp.extensions.getFirstDayOfCurrentMonth
 import com.renderson.cashflowapp.extensions.getLastDayOfCurrentMonth
-import com.renderson.cashflowapp.extensions.millisToDateString
 import com.renderson.cashflowapp.extensions.label
+import com.renderson.cashflowapp.extensions.millisToDateString
 import com.renderson.cashflowapp.extensions.toDisplayDate
 import com.renderson.cashflowapp.model.CardItems
+import com.renderson.cashflowapp.model.MonthlyTrendPoint
 import com.renderson.cashflowapp.model.Transaction
 import com.renderson.cashflowapp.util.components.CashFlowAppBar
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
+import java.time.LocalDate
+import java.time.YearMonth
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
@@ -88,6 +100,7 @@ fun HomeScreen(
 ) {
     val filterPeriod by viewModel.filterPeriod.collectAsState()
     val filteredTransactions by viewModel.filteredTransactions.collectAsState(initial = emptyList())
+    val monthlyTrendData = remember(filteredTransactions) { buildMonthlyTrendData(filteredTransactions) }
 
     val totalDeposit = filteredTransactions
         .filter { it.type == TypeExtract.DEPOSIT }
@@ -132,6 +145,9 @@ fun HomeScreen(
             icon = Icons.AutoMirrored.Outlined.CallMade
         )
     )
+
+    val chartsPageCount = 3
+    val pagerState = rememberPagerState(pageCount = { chartsPageCount })
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -180,32 +196,71 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 4.dp),
-                    text = stringResource(
-                        R.string.home_spent_by_category,
-                        filterPeriod.label()
-                    ),
+                    text = stringResource(R.string.home_charts_section_title),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium
                 )
-                Box(
+                HorizontalPager(
+                    state = pagerState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            start = 8.dp,
-                            end = 8.dp
-                        )
-                        .background(
-                            shape = RoundedCornerShape(10.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainer
-                        )
-                ) {
-                    SaldoChart(
-                        transactions = filteredTransactions,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 8.dp)
-                    )
+                        .height(320.dp)
+                        .padding(horizontal = 8.dp)
+                ) { page ->
+                    ChartPagerCard {
+                        when (page) {
+                            0 -> {
+                                Text(
+                                    text = stringResource(
+                                        R.string.home_spent_by_category,
+                                        filterPeriod.label()
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                SaldoChart(
+                                    transactions = filteredTransactions,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+
+                            1 -> {
+                                Text(
+                                    text = stringResource(R.string.home_chart_deposits_vs_payments_title),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                DepositsVsPaymentsBarChart(
+                                    depositTotal = totalDeposit,
+                                    paymentTotal = totalPayment,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+
+                            else -> {
+                                Text(
+                                    text = stringResource(R.string.home_chart_monthly_comparison_title),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                MonthlyComparisonBarChart(
+                                    data = monthlyTrendData,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
                 }
+                ChartPagerIndicator(
+                    pagerState = pagerState,
+                    pageCount = chartsPageCount,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
 
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 160.dp),
@@ -753,6 +808,56 @@ fun ItemCardList(item: CardItems) {
 }
 
 @Composable
+private fun ChartPagerCard(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top
+        ) {
+            content()
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ChartPagerIndicator(
+    pagerState: PagerState,
+    pageCount: Int,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(pageCount) { index ->
+            val isSelected = pagerState.currentPage == index
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .size(if (isSelected) 10.dp else 8.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (isSelected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.outlineVariant
+                    )
+            )
+        }
+    }
+}
+
+@Composable
 private fun PeriodSummaryCard(
     countDeposits: Int,
     countPayments: Int
@@ -822,4 +927,44 @@ private fun MaiorGastoCard(
             )
         }
     }
+}
+
+private data class MutableMonthlyTotals(
+    var deposit: Double = 0.0,
+    var payment: Double = 0.0
+) {
+    val balance: Double get() = deposit - payment
+}
+
+private fun buildMonthlyTrendData(transactions: List<Transaction>): List<MonthlyTrendPoint> {
+    if (transactions.isEmpty()) return emptyList()
+
+    val monthlyMap = mutableMapOf<YearMonth, MutableMonthlyTotals>()
+    transactions.forEach { transaction ->
+        val month = runCatching { YearMonth.from(LocalDate.parse(transaction.date)) }.getOrNull()
+            ?: return@forEach
+        val totals = monthlyMap.getOrPut(month) { MutableMonthlyTotals() }
+        when (transaction.type) {
+            TypeExtract.DEPOSIT -> totals.deposit += transaction.amount
+            TypeExtract.PAYMENT -> totals.payment += transaction.amount
+            else -> Unit
+        }
+    }
+
+    val sortedEntries = monthlyMap.entries.sortedBy { it.key }
+    if (sortedEntries.size < 2) return emptyList()
+
+    val comparisons = mutableListOf<MonthlyTrendPoint>()
+    for (index in 1 until sortedEntries.size) {
+        val previous = sortedEntries[index - 1]
+        val current = sortedEntries[index]
+        comparisons += MonthlyTrendPoint(
+            label = current.key.asMonthLabel(),
+            currentValue = current.value.balance,
+            previousLabel = previous.key.asMonthLabel(),
+            previousValue = previous.value.balance
+        )
+    }
+
+    return comparisons.takeLast(6)
 }

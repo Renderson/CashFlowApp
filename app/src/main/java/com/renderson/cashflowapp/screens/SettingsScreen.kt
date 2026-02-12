@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Backup
@@ -79,7 +80,7 @@ fun SettingsScreen(
                                 snackbarHostState.showSnackbar(context.getString(R.string.settings_backup_export_error))
                         }
                     } ?: snackbarHostState.showSnackbar(context.getString(R.string.settings_backup_export_error))
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     snackbarHostState.showSnackbar(context.getString(R.string.settings_backup_export_error))
                 }
             }
@@ -124,7 +125,7 @@ fun SettingsScreen(
                 },
                 supportingContent = {
                     SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp).fillMaxWidth()
                     ) {
                         SegmentedButton(
                             selected = themeMode == THEME_SYSTEM,

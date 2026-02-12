@@ -3,7 +3,9 @@ package com.renderson.cashflowapp.extensions
 import com.renderson.cashflowapp.enums.RecurringFrequency
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -97,4 +99,11 @@ fun RecurringFrequency.defaultStartDateFrom(baseDate: String): String {
         RecurringFrequency.YEARLY -> base.plusYears(1)
     }
     return next.format(isoFormatter)
+}
+
+fun YearMonth.asMonthLabel(locale: Locale = Locale.getDefault()): String {
+    val monthLabel = month.getDisplayName(TextStyle.SHORT, locale)
+    val formattedMonth = monthLabel.replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+    val yearSuffix = (year % 100).toString().padStart(2, '0')
+    return "$formattedMonth/$yearSuffix"
 }

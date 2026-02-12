@@ -52,6 +52,15 @@
     <string name="home_biggest_expense_title">Highest expense in the period</string>
     <string name="home_biggest_expense">%1$s – %2$s</string>
     <string name="home_spent_by_category">Spending by category (%1$s)</string>
+    <string name="home_charts_section_title">Growth charts</string>
+    <string name="home_chart_deposits_vs_payments_title">Deposits vs Payments</string>
+    <string name="home_chart_deposits_label">Deposits</string>
+    <string name="home_chart_payments_label">Payments</string>
+    <string name="home_chart_monthly_comparison_title">Month-over-month comparison</string>
+    <string name="home_chart_current_month_label">Current month</string>
+    <string name="home_chart_previous_month_label">Previous month</string>
+    <string name="home_chart_insufficient_data">Not enough data for this comparison</string>
+    <string name="home_chart_monthly_latest_detail">Latest comparison: %1$s = %2$s • %3$s = %4$s</string>
     <string name="chart_category_total">%1$s total spent %2$s</string>
 
     <!-- FilterPeriod labels -->
