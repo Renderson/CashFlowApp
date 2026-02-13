@@ -15,29 +15,29 @@
 ##
 [versions]
 accessibilityTestFramework = "4.0.0"
-activityCompose = "1.7.2"
+activityCompose = "1.8.0"
 androidGradlePlugin = "8.1.2"
 benchmark = "1.1.0"
 # @keep
 compileSdk = "33"
 composeLatest = "1.4.0-alpha03"
 composeBom = "2023.06.01"
-compose-compiler = "1.5.3"
+composeCompiler = "1.5.3"
 constraintLayoutCompose = "1.0.1"
 coreTesting = "2.2.0"
 coroutines = "1.6.4"
-espresso = "3.4.0"
+espresso = "3.5.1"
 glide = "1.0.0-alpha.3"
 gradle = "7.2.0"
-gson = "2.9.0"
+gson = "2.10.1"
 guava = "31.1-android"
 hilt = "2.48"
 hiltNavigationCompose = "1.0.0"
 junit = "4.13.2"
 kotlin = "1.9.10"
 ktlint = "0.40.0"
-ktx = "1.7.0"
-lifecycle = "2.6.0-alpha04"
+ktx = "1.9.0"
+lifecycle = "2.6.2"
 material = "1.8.0-rc01"
 material3 = "1.2.1"
 # @keep
@@ -59,6 +59,13 @@ viewModelCompose = "2.5.1"
 work = "2.7.1"
 systemuicontroller = "0.30.1"
 datastoreCoreAndroid = "1.2.0"
+datastorePreferences = "1.0.0"
+firebaseBom = "32.7.0"
+credentials = "1.2.2"
+mpAndroidChart = "3.1.0"
+lottieCompose = "6.7.0"
+desugarJdkLibs = "2.0.4"
+composeBomTest = "2023.03.00"
 
 [libraries]
 accessibility-test-framework = { module = "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework", version.ref = "accessibilityTestFramework" }
@@ -77,6 +84,10 @@ androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compos
 androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeLatest" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-compose-bom-test = { module = "androidx.compose:compose-bom", version.ref = "composeBomTest" }
 androidx-compose-ui-viewbinding = { module = "androidx.compose.ui:ui-viewbinding" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintLayoutCompose" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "ktx" }
@@ -84,6 +95,8 @@ androidx-espresso-contrib = { module = "androidx.test.espresso:espresso-contrib"
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
 androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "viewModelCompose" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-monitor = { module = "androidx.test:monitor", version.ref = "monitor" }
@@ -118,3 +131,12 @@ retrofit2 = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofi
 retrofit2-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 androidx-leanback = { group = "androidx.leanback", name = "leanback", version = "1.0.0" }
 androidx-datastore-core-android = { group = "androidx.datastore", name = "datastore-core-android", version.ref = "datastoreCoreAndroid" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+mp-android-chart = { module = "com.github.PhilJay:MPAndroidChart", version = "v3.1.0" }
+lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-storage-ktx = { module = "com.google.firebase:firebase-storage-ktx" }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }

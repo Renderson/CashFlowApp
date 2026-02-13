@@ -197,6 +197,18 @@
     <string name="settings_recurring_section">Recorrências</string>
     <string name="settings_recurring">Transações recorrentes</string>
     <string name="settings_recurring_desc">Gerencie lançamentos automáticos</string>
+    <string name="settings_about_section">Sobre</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_about_desc">Informações e licenças do app</string>
+
+    <!-- Sobre / About -->
+    <string name="about_title">Sobre</string>
+    <string name="about_description">Controle seus gastos e receitas de forma simples.</string>
+    <string name="about_privacy_policy">Política de privacidade</string>
+    <string name="about_terms_of_use">Termos de uso</string>
+    <string name="about_licenses">Licenças de código aberto</string>
+    <string name="about_privacy_policy_url">https://example.com/privacy</string>
+    <string name="about_terms_url">https://example.com/terms</string>
 
     <!-- Recorrências -->
     <string name="recurring_title">Transações recorrentes</string>

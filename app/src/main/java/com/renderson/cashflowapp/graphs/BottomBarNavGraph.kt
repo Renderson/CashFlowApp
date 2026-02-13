@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.renderson.cashflowapp.R
 import com.renderson.cashflowapp.model.Transaction
+import com.renderson.cashflowapp.screens.AboutScreen
 import com.renderson.cashflowapp.screens.ExportScreen
 import com.renderson.cashflowapp.screens.ExtractScreen
 import com.renderson.cashflowapp.screens.HomeScreen
@@ -62,8 +63,12 @@ fun BottomNavGraph(
         composable(route = "settings") {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
-                onNavigateToRecurring = { navController.navigate("recurring") }
+                onNavigateToRecurring = { navController.navigate("recurring") },
+                onNavigateToAbout = { navController.navigate("about") }
             )
+        }
+        composable(route = "about") {
+            AboutScreen(onBack = { navController.popBackStack() })
         }
         composable(route = "recurring") {
             RecurringTransactionsScreen(

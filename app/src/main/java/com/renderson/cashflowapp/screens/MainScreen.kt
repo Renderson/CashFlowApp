@@ -69,7 +69,8 @@ fun MainScreen(
             if (currentDestination?.route != "search" &&
                 currentDestination?.route != "export" &&
                 currentDestination?.route != "settings" &&
-                currentDestination?.route != "recurring"
+                currentDestination?.route != "recurring" &&
+                currentDestination?.route != "about"
             ) {
                 ExtendedFloatingActionButton(
                     onClick = { onFabClick.invoke() },

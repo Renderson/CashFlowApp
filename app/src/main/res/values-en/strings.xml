@@ -197,6 +197,18 @@
     <string name="settings_recurring_section">Recurrences</string>
     <string name="settings_recurring">Recurring transactions</string>
     <string name="settings_recurring_desc">Manage automatic entries</string>
+    <string name="settings_about_section">About</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_desc">App information and licenses</string>
+
+    <!-- About -->
+    <string name="about_title">About</string>
+    <string name="about_description">Manage your expenses and income in a simple way.</string>
+    <string name="about_privacy_policy">Privacy policy</string>
+    <string name="about_terms_of_use">Terms of use</string>
+    <string name="about_licenses">Open source licenses</string>
+    <string name="about_privacy_policy_url">https://example.com/privacy</string>
+    <string name="about_terms_url">https://example.com/terms</string>
 
     <!-- Recurring -->
     <string name="recurring_title">Recurring transactions</string>
