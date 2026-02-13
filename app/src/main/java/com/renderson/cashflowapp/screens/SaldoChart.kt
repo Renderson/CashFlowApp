@@ -31,16 +31,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
@@ -55,7 +51,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Gráfico de pizza: total de saídas (PAYMENT) agrupado por categoria.
+ * Gráfico de barras (torres): total de saídas (PAYMENT) agrupado por categoria.
  * Fonte: lista de transações passada (ex.: todas do banco).
  */
 @Composable
@@ -76,10 +72,6 @@ fun SaldoChart(
 
     data class CategorySliceDetail(val category: TransactionCategory, val total: Double)
 
-    val detailsByLabel: Map<String, CategorySliceDetail> = totalsByCategory.associate { (category, total) ->
-        category.label() to CategorySliceDetail(category, total)
-    }
-
     var selectedSlice by remember { mutableStateOf<CategorySliceDetail?>(null) }
 
     // Ao mudar o período/filtro (transactions mudou), deseleciona fatia e esconde o texto de detalhe
@@ -87,9 +79,11 @@ fun SaldoChart(
         selectedSlice = null
     }
 
-    val entries = totalsByCategory.map { (category, total) ->
-        PieEntry(total.toFloat(), category.label())
+    val barEntries = totalsByCategory.mapIndexed { index, (_, total) ->
+        BarEntry(index.toFloat(), total.toFloat())
     }
+
+    val categoryLabels = totalsByCategory.map { (category, _) -> category.label() }
 
     val textColorArgb = MaterialTheme.colorScheme.onSurface.toArgb()
     val colorPalette = listOf(
@@ -109,29 +103,53 @@ fun SaldoChart(
                 .fillMaxWidth()
                 .height(220.dp),
             factory = { ctx ->
-                PieChart(ctx).apply {
+                BarChart(ctx).apply {
                     setTouchEnabled(true)
                     description.isEnabled = false
-                    setDrawEntryLabels(true)
-                    setUsePercentValues(false)
-                    isDrawHoleEnabled = true
-                    setHoleColor(android.graphics.Color.TRANSPARENT)
+                    legend.isEnabled = false
+                    axisRight.isEnabled = false
+                    setDrawGridBackground(false)
+                    setScaleEnabled(false)
+                    setFitBars(true)
                 }
             },
             update = { chart ->
-                val dataSet = PieDataSet(entries, "").apply {
-                    colors = colorPalette
-                    // não desenhar valores numéricos nas fatias
+                val barColors = totalsByCategory.mapIndexed { index, _ ->
+                    colorPalette[index % colorPalette.size]
+                }
+                val dataSet = BarDataSet(barEntries, "").apply {
+                    colors = barColors
                     setDrawValues(false)
                 }
-                chart.data = PieData(dataSet)
+                chart.data = BarData(dataSet).apply {
+                    barWidth = 0.6f
+                }
 
-                chart.legend.isEnabled = false
+                chart.axisLeft.apply {
+                    textColor = textColorArgb
+                    axisMinimum = 0f
+                    setDrawGridLines(true)
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+                            return value.toDouble().formatForLocalCurrency()
+                        }
+                    }
+                }
 
-                // cores de texto respeitando o tema (claro/escuro)
-                chart.setEntryLabelColor(textColorArgb)
+                chart.xAxis.apply {
+                    position = XAxis.XAxisPosition.BOTTOM
+                    textColor = textColorArgb
+                    granularity = 1f
+                    setDrawGridLines(false)
+                    setLabelRotationAngle(-45f)
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+                            val index = value.toInt()
+                            return categoryLabels.getOrNull(index) ?: ""
+                        }
+                    }
+                }
 
-                // Volta ao estado normal quando não há fatia selecionada (ex.: após trocar filtro)
                 if (selectedSlice == null) {
                     chart.highlightValue(null)
                 } else {
@@ -143,9 +161,11 @@ fun SaldoChart(
 
                 chart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
                     override fun onValueSelected(e: Entry?, h: Highlight?) {
-                        val pieEntry = e as? PieEntry ?: return
-                        val label = pieEntry.label ?: return
-                        val detail = detailsByLabel[label] ?: return
+                        val barEntry = e as? BarEntry ?: return
+                        val index = barEntry.x.toInt()
+                        val detail = totalsByCategory.getOrNull(index)?.let { (category, total) ->
+                            CategorySliceDetail(category, total)
+                        } ?: return
                         selectedSlice = detail
                     }
 
