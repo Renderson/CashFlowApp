@@ -9,8 +9,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.renderson.cashflowapp.data.credentials.CredentialRepository
 import com.renderson.cashflowapp.data.preferences.SettingsDataStore
 import com.renderson.cashflowapp.data.repository.AuthRepository
+import com.renderson.cashflowapp.data.session.SessionManager
 import com.renderson.cashflowapp.graphs.RootNavigationGraph
 import com.renderson.cashflowapp.ui.theme.ThemeProvider
 import com.renderson.cashflowapp.viewmodel.AuthViewModel
@@ -27,8 +29,17 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var authRepository: AuthRepository
 
+    @Inject
+    lateinit var sessionManager: SessionManager
+
+    @Inject
+    lateinit var credentialRepository: CredentialRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            authRepository.signOut()
+        }
         setContent {
             ThemeProvider(settingsDataStore = settingsDataStore) {
                 val cashFlowViewModel: CashFlowViewModel = hiltViewModel()
@@ -41,7 +52,8 @@ class MainActivity : ComponentActivity() {
                         navController = rememberNavController(),
                         cashFlowViewModel = cashFlowViewModel,
                         authViewModel = authViewModel,
-                        authRepository = authRepository
+                        authRepository = authRepository,
+                        credentialRepository = credentialRepository
                     )
                 }
             }

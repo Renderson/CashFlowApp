@@ -154,6 +154,13 @@
     <string name="auth_sign_out">Sign out</string>
     <string name="auth_show_password">Show password</string>
     <string name="auth_hide_password">Hide password</string>
+    <string name="auth_forgot_password">Forgot password</string>
+    <string name="auth_reset_password">Reset password</string>
+    <string name="auth_reset_password_dialog_title">Enter your email to receive the reset link</string>
+    <string name="auth_reset_password_success">Email sent! Check your inbox.</string>
+    <string name="auth_error_empty_email">Enter your email</string>
+    <string name="auth_welcome_access">Access</string>
+    <string name="auth_welcome_login">Sign in</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>

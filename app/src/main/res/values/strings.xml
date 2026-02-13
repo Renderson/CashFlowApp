@@ -154,6 +154,13 @@
     <string name="auth_sign_out">Sair</string>
     <string name="auth_show_password">Mostrar senha</string>
     <string name="auth_hide_password">Ocultar senha</string>
+    <string name="auth_forgot_password">Esqueci a senha</string>
+    <string name="auth_reset_password">Redefinir senha</string>
+    <string name="auth_reset_password_dialog_title">Digite seu e-mail para receber o link de redefinição</string>
+    <string name="auth_reset_password_success">E-mail enviado! Verifique sua caixa de entrada.</string>
+    <string name="auth_error_empty_email">Informe seu e-mail</string>
+    <string name="auth_welcome_access">Acessar</string>
+    <string name="auth_welcome_login">Fazer login</string>
 
     <!-- Settings -->
     <string name="settings_title">Configurações</string>

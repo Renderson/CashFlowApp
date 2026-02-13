@@ -50,6 +50,13 @@ class AuthRepository @Inject constructor(
         firebaseAuth.signOut()
     }
 
+    suspend fun sendPasswordResetEmail(email: String): Result<Unit> = runCatching {
+        firebaseAuth.sendPasswordResetEmail(email.trim()).await()
+    }.fold(
+        onSuccess = { Result.success(Unit) },
+        onFailure = { Result.failure(it) }
+    )
+
     suspend fun deleteAccount(password: String): Result<Unit> {
         val user = firebaseAuth.currentUser ?: return Result.failure(
             IllegalStateException("Nenhum usuário logado")

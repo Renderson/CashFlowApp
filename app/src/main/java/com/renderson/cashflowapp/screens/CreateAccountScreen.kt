@@ -1,6 +1,7 @@
 package com.renderson.cashflowapp.screens
 
 import android.util.Patterns
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,13 +15,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,9 +29,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,17 +41,24 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.renderson.cashflowapp.R
+import com.renderson.cashflowapp.data.credentials.CredentialRepository
+import com.renderson.cashflowapp.util.components.CashFlowButtonPrimary
+import com.renderson.cashflowapp.util.components.CashFlowButtonSecondary
 import com.renderson.cashflowapp.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateAccountScreen(
     viewModel: AuthViewModel,
+    credentialRepository: CredentialRepository,
     onAccountCreated: () -> Unit,
     onBackToLogin: () -> Unit
 ) {
     val authError by viewModel.authError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val activity = LocalContext.current as? android.app.Activity
+    val scope = rememberCoroutineScope()
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -178,27 +185,31 @@ fun CreateAccountScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.height(24.dp))
-            } else {
-                Button(
-                    onClick = {
-                        viewModel.createAccount(name, email, password, confirmPassword, onSuccess = onAccountCreated)
-                    },
-                    enabled = isFormValid,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.auth_create_account))
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedButton(
-                onClick = onBackToLogin,
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                Text(stringResource(R.string.auth_back_to_login))
+                CashFlowButtonPrimary(
+                    isLoading = isLoading,
+                    text = stringResource(R.string.auth_create_account),
+                    enabled = isFormValid,
+                    onClick = {
+                        viewModel.createAccount(name, email, password, confirmPassword, onSuccess = {
+                            if (activity != null) {
+                                scope.launch {
+                                    credentialRepository.saveCredential(activity, email.trim(), password)
+                                    onAccountCreated()
+                                }
+                            } else {
+                                onAccountCreated()
+                            }
+                        })
+                    }
+                )
+
+                CashFlowButtonSecondary(
+                    text = stringResource(R.string.auth_back_to_login),
+                    onClick = onBackToLogin
+                )
             }
         }
     }

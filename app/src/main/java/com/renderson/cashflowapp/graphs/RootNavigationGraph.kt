@@ -7,10 +7,12 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.renderson.cashflowapp.data.credentials.CredentialRepository
 import com.renderson.cashflowapp.data.repository.AuthRepository
 import com.renderson.cashflowapp.screens.CreateAccountScreen
 import com.renderson.cashflowapp.screens.LoginScreen
 import com.renderson.cashflowapp.screens.MainScreen
+import com.renderson.cashflowapp.screens.WelcomeScreen
 import com.renderson.cashflowapp.viewmodel.AuthViewModel
 import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 
@@ -19,28 +21,56 @@ fun RootNavigationGraph(
     navController: NavHostController,
     cashFlowViewModel: CashFlowViewModel,
     authViewModel: AuthViewModel,
-    authRepository: AuthRepository
+    authRepository: AuthRepository,
+    credentialRepository: CredentialRepository
 ) {
     val currentUser by authRepository.currentUser.collectAsState(initial = null)
 
     NavHost(
         navController = navController,
         route = Graph.ROOT,
-        startDestination = Graph.AUTH
+        startDestination = Graph.WELCOME
     ) {
+        composable(route = Graph.WELCOME) {
+            if (currentUser != null) {
+                LaunchedEffect(currentUser) {
+                    navController.navigate(Graph.HOME) {
+                        popUpTo(Graph.WELCOME) { inclusive = true }
+                    }
+                }
+            } else {
+                WelcomeScreen(
+                    viewModel = authViewModel,
+                    credentialRepository = credentialRepository,
+                    onAccessSuccess = {
+                        navController.navigate(Graph.HOME) {
+                            popUpTo(Graph.WELCOME) { inclusive = true }
+                        }
+                    },
+                    onLoginClick = {
+                        navController.navigate(Graph.AUTH)
+                    },
+                    onCreateAccountClick = {
+                        navController.navigate(Graph.CREATE_ACCOUNT)
+                    }
+                )
+            }
+        }
+
         composable(route = Graph.AUTH) {
             if (currentUser != null) {
                 LaunchedEffect(currentUser) {
                     navController.navigate(Graph.HOME) {
-                        popUpTo(Graph.AUTH) { inclusive = true }
+                        popUpTo(Graph.WELCOME) { inclusive = true }
                     }
                 }
             } else {
                 LoginScreen(
                     viewModel = authViewModel,
+                    credentialRepository = credentialRepository,
                     onLoginSuccess = {
                         navController.navigate(Graph.HOME) {
-                            popUpTo(Graph.AUTH) { inclusive = true }
+                            popUpTo(Graph.WELCOME) { inclusive = true }
                         }
                     },
                     onCreateAccountClick = {
@@ -53,9 +83,10 @@ fun RootNavigationGraph(
         composable(route = Graph.CREATE_ACCOUNT) {
             CreateAccountScreen(
                 viewModel = authViewModel,
+                credentialRepository = credentialRepository,
                 onAccountCreated = {
                     navController.navigate(Graph.HOME) {
-                        popUpTo(Graph.AUTH) { inclusive = true }
+                        popUpTo(Graph.WELCOME) { inclusive = true }
                     }
                 },
                 onBackToLogin = {
@@ -67,7 +98,7 @@ fun RootNavigationGraph(
         composable(route = Graph.HOME) {
             if (currentUser == null) {
                 LaunchedEffect(Unit) {
-                    navController.navigate(Graph.AUTH) {
+                    navController.navigate(Graph.WELCOME) {
                         popUpTo(Graph.HOME) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -93,6 +124,7 @@ fun RootNavigationGraph(
 
 object Graph {
     const val ROOT = "root_graph"
+    const val WELCOME = "welcome"
     const val AUTH = "auth"
     const val CREATE_ACCOUNT = "create_account"
     const val HOME = "home_graph"

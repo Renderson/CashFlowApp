@@ -7,6 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.firebase.auth.FirebaseAuth
 import com.renderson.cashflowapp.classifier.TransactionCategoryClassifier
 import com.renderson.cashflowapp.data.ClashFlowDatabase
+import com.renderson.cashflowapp.data.preferences.SessionDataStore
 import com.renderson.cashflowapp.data.preferences.SettingsDataStore
 import com.renderson.cashflowapp.data.repository.AuthRepository
 import com.renderson.cashflowapp.usecase.SuggestTransactionCategoryUseCase
@@ -82,6 +83,11 @@ object AppModule {
     @Provides
     fun provideSettingsDataStore(@ApplicationContext context: Context): SettingsDataStore =
         SettingsDataStore(context)
+
+    @Singleton
+    @Provides
+    fun provideSessionDataStore(@ApplicationContext context: Context): SessionDataStore =
+        SessionDataStore(context)
 
     @Singleton
     @Provides

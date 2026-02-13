@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.renderson.cashflowapp.data.credentials.CredentialRepository
 import com.renderson.cashflowapp.data.repository.AuthRepository
 import com.renderson.cashflowapp.data.repository.ClashFlowRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,6 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.app.Activity
+
 import javax.inject.Inject
 
 @HiltViewModel
@@ -85,6 +88,54 @@ class AuthViewModel @Inject constructor(
 
     fun signOut() {
         authRepository.signOut()
+    }
+
+    fun signInWithCredential(
+        activity: Activity,
+        credentialRepository: CredentialRepository,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _authError.value = null
+            _isLoading.value = true
+            try {
+                val credentialResult = credentialRepository.getCredential(activity)
+                credentialResult.fold(
+                    onSuccess = { stored ->
+                        authRepository.signIn(stored.email, stored.password)
+                            .onSuccess {
+                                clashFlowRepository.migrateLegacyDataIfNeeded(authRepository.getCurrentUserId()!!)
+                                onSuccess()
+                            }
+                            .onFailure { onFailure() }
+                    },
+                    onFailure = { onFailure() }
+                )
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetPassword(email: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            _authError.value = null
+            if (email.isBlank()) {
+                onError("auth_error_empty_email")
+                return@launch
+            }
+            authRepository.sendPasswordResetEmail(email)
+                .onSuccess { onSuccess() }
+                .onFailure {
+                    onError(
+                        when {
+                            it.message?.contains("invalid") == true -> "auth_error_invalid_email"
+                            else -> "auth_error_generic"
+                        }
+                    )
+                }
+        }
     }
 
     fun deleteAccount(password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
