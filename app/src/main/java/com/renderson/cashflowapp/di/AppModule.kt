@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import com.renderson.cashflowapp.classifier.TransactionCategoryClassifier
 import com.renderson.cashflowapp.data.ClashFlowDatabase
 import com.renderson.cashflowapp.data.preferences.SessionDataStore
@@ -97,4 +98,8 @@ object AppModule {
     @Provides
     fun provideAuthRepository(firebaseAuth: FirebaseAuth): AuthRepository =
         AuthRepository(firebaseAuth)
+
+    @Singleton
+    @Provides
+    fun provideFirebaseStorage(): FirebaseStorage = FirebaseStorage.getInstance()
 }

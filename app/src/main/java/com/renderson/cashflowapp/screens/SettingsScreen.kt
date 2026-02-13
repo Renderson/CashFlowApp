@@ -14,7 +14,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.outlined.Backup
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Warning
@@ -77,6 +79,7 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var showRestoreConfirmDialog by remember { mutableStateOf<Uri?>(null) }
+    var showRestoreCloudConfirmDialog by remember { mutableStateOf(false) }
 
     val dateFormat = remember { SimpleDateFormat("yyyyMMdd_HHmm", Locale.US) }
     val backupFileName = "${context.getString(R.string.settings_backup_filename_prefix)}_${dateFormat.format(Date())}.json"
@@ -188,7 +191,7 @@ fun SettingsScreen(
                 },
                 leadingContent = {
                     Icon(
-                        imageVector = Icons.Outlined.Backup,
+                        imageVector = Icons.Outlined.Save,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -218,6 +221,66 @@ fun SettingsScreen(
                     )
                 },
                 modifier = Modifier.clickable { openDocumentLauncher.launch(arrayOf("application/json", "*/*")) }
+            )
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = stringResource(R.string.settings_backup_cloud_save),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                supportingContent = {
+                    Text(
+                        text = stringResource(R.string.settings_backup_cloud_save_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.CloudUpload,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                modifier = Modifier.clickable {
+                    scope.launch {
+                        val result = viewModel.uploadBackupToCloud()
+                        when (result) {
+                            is BackupResult.Success ->
+                                snackbarHostState.showSnackbar(context.getString(R.string.settings_backup_cloud_save_success))
+                            is BackupResult.Error ->
+                                snackbarHostState.showSnackbar(
+                                    context.getString(R.string.settings_backup_cloud_save_error)
+                                )
+                        }
+                    }
+                }
+            )
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = stringResource(R.string.settings_backup_cloud_restore),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                supportingContent = {
+                    Text(
+                        text = stringResource(R.string.settings_backup_cloud_restore_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.CloudDownload,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                modifier = Modifier.clickable { showRestoreCloudConfirmDialog = true }
             )
 
             Text(
@@ -413,6 +476,40 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showRestoreConfirmDialog = null }) {
+                    Text(stringResource(R.string.home_cancel), color = MaterialTheme.colorScheme.onSurface)
+                }
+            }
+        )
+    }
+
+    if (showRestoreCloudConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showRestoreCloudConfirmDialog = false },
+            title = { Text(stringResource(R.string.settings_backup_cloud_restore_confirm_title)) },
+            text = { Text(stringResource(R.string.settings_backup_cloud_restore_confirm_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showRestoreCloudConfirmDialog = false
+                        scope.launch {
+                            val result = viewModel.restoreBackupFromCloud()
+                            when (result) {
+                                is BackupResult.Success ->
+                                    snackbarHostState.showSnackbar(context.getString(R.string.settings_backup_cloud_restore_success))
+                                is BackupResult.Error ->
+                                    snackbarHostState.showSnackbar(
+                                        if (result.message == "settings_backup_cloud_empty") context.getString(R.string.settings_backup_cloud_empty)
+                                        else result.message
+                                    )
+                            }
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.home_ok), color = MaterialTheme.colorScheme.primary)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRestoreCloudConfirmDialog = false }) {
                     Text(stringResource(R.string.home_cancel), color = MaterialTheme.colorScheme.onSurface)
                 }
             }

@@ -172,10 +172,10 @@
 
     <!-- Settings Backup -->
     <string name="settings_backup">Backup</string>
-    <string name="settings_backup_export">Export backup</string>
-    <string name="settings_backup_export_desc">Saves a full copy of your data</string>
-    <string name="settings_backup_restore">Restore</string>
-    <string name="settings_backup_restore_desc">Restores data from a backup file</string>
+    <string name="settings_backup_export">Save backup to file</string>
+    <string name="settings_backup_export_desc">Saves your data to a JSON file on your device or chosen folder</string>
+    <string name="settings_backup_restore">Restore from file</string>
+    <string name="settings_backup_restore_desc">Imports data from a backup file saved on your device</string>
     <string name="settings_backup_restore_confirm_title">Restore backup?</string>
     <string name="settings_backup_restore_confirm_message">This will replace all current data. This action cannot be undone.</string>
     <string name="settings_backup_export_success">Backup exported</string>
@@ -183,6 +183,17 @@
     <string name="settings_backup_restore_success">Backup restored</string>
     <string name="settings_backup_restore_error">Error restoring backup</string>
     <string name="settings_backup_filename_prefix">cashflow_backup</string>
+    <string name="settings_backup_cloud_save">Save to cloud</string>
+    <string name="settings_backup_cloud_save_desc">Uploads backup to your account</string>
+    <string name="settings_backup_cloud_restore">Restore from cloud</string>
+    <string name="settings_backup_cloud_restore_desc">Downloads your last saved backup</string>
+    <string name="settings_backup_cloud_save_success">Backup saved to cloud</string>
+    <string name="settings_backup_cloud_save_error">Error saving backup to cloud</string>
+    <string name="settings_backup_cloud_restore_success">Backup restored from cloud</string>
+    <string name="settings_backup_cloud_restore_error">Error restoring from cloud</string>
+    <string name="settings_backup_cloud_restore_confirm_title">Restore from cloud?</string>
+    <string name="settings_backup_cloud_restore_confirm_message">This will replace all current data with the cloud backup. This action cannot be undone.</string>
+    <string name="settings_backup_cloud_empty">No cloud backup found</string>
     <string name="settings_recurring_section">Recurrences</string>
     <string name="settings_recurring">Recurring transactions</string>
     <string name="settings_recurring_desc">Manage automatic entries</string>

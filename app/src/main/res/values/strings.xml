@@ -172,10 +172,10 @@
 
     <!-- Settings Backup -->
     <string name="settings_backup">Backup</string>
-    <string name="settings_backup_export">Exportar backup</string>
-    <string name="settings_backup_export_desc">Salva uma cópia completa dos seus dados</string>
-    <string name="settings_backup_restore">Restaurar</string>
-    <string name="settings_backup_restore_desc">Restaura dados de um arquivo de backup</string>
+    <string name="settings_backup_export">Salvar backup em arquivo</string>
+    <string name="settings_backup_export_desc">Salva os dados em um arquivo JSON no dispositivo ou pasta que você escolher</string>
+    <string name="settings_backup_restore">Restaurar de arquivo</string>
+    <string name="settings_backup_restore_desc">Importa dados de um arquivo de backup salvo no dispositivo</string>
     <string name="settings_backup_restore_confirm_title">Restaurar backup?</string>
     <string name="settings_backup_restore_confirm_message">Isso substituirá todos os dados atuais. Esta ação não pode ser desfeita.</string>
     <string name="settings_backup_export_success">Backup exportado</string>
@@ -183,6 +183,17 @@
     <string name="settings_backup_restore_success">Backup restaurado</string>
     <string name="settings_backup_restore_error">Erro ao restaurar backup</string>
     <string name="settings_backup_filename_prefix">cashflow_backup</string>
+    <string name="settings_backup_cloud_save">Salvar na nuvem</string>
+    <string name="settings_backup_cloud_save_desc">Envia backup para sua conta</string>
+    <string name="settings_backup_cloud_restore">Restaurar da nuvem</string>
+    <string name="settings_backup_cloud_restore_desc">Baixa o último backup salvo</string>
+    <string name="settings_backup_cloud_save_success">Backup salvo na nuvem</string>
+    <string name="settings_backup_cloud_save_error">Erro ao salvar backup na nuvem</string>
+    <string name="settings_backup_cloud_restore_success">Backup restaurado da nuvem</string>
+    <string name="settings_backup_cloud_restore_error">Erro ao restaurar da nuvem</string>
+    <string name="settings_backup_cloud_restore_confirm_title">Restaurar da nuvem?</string>
+    <string name="settings_backup_cloud_restore_confirm_message">Isso substituirá todos os dados atuais pelo backup da nuvem. Esta ação não pode ser desfeita.</string>
+    <string name="settings_backup_cloud_empty">Nenhum backup na nuvem</string>
     <string name="settings_recurring_section">Recorrências</string>
     <string name="settings_recurring">Transações recorrentes</string>
     <string name="settings_recurring_desc">Gerencie lançamentos automáticos</string>

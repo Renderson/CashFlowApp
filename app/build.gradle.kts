@@ -74,6 +74,7 @@ dependencies {
     // Extend Icons
     implementation("androidx.compose.material:material-icons-extended")
 
+    implementation("androidx.compose.runtime:runtime")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -99,6 +100,7 @@ dependencies {
     // Firebase Auth
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
 
     // Credential Manager
     implementation("androidx.credentials:credentials:1.2.2")
