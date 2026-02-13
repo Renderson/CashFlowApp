@@ -207,8 +207,8 @@
     <string name="about_privacy_policy">Política de privacidade</string>
     <string name="about_terms_of_use">Termos de uso</string>
     <string name="about_licenses">Licenças de código aberto</string>
-    <string name="about_privacy_policy_url">https://example.com/privacy</string>
-    <string name="about_terms_url">https://example.com/terms</string>
+    <string name="about_privacy_policy_url">https://renderson.github.io/cashflowapp-pages/privacy.html</string>
+    <string name="about_terms_url">https://renderson.github.io/cashflowapp-pages/terms.html</string>
 
     <!-- Recorrências -->
     <string name="recurring_title">Transações recorrentes</string>
