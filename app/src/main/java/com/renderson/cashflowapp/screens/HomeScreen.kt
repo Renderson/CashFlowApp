@@ -90,7 +90,11 @@ import com.renderson.cashflowapp.viewmodel.CashFlowViewModel
 import java.time.LocalDate
 import java.time.YearMonth
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalLayoutApi::class,
+    ExperimentalFoundationApi::class
+)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
@@ -101,7 +105,8 @@ fun HomeScreen(
 ) {
     val filterPeriod by viewModel.filterPeriod.collectAsState()
     val filteredTransactions by viewModel.filteredTransactions.collectAsState(initial = emptyList())
-    val monthlyTrendData = remember(filteredTransactions) { buildMonthlyTrendData(filteredTransactions) }
+    val monthlyTrendData =
+        remember(filteredTransactions) { buildMonthlyTrendData(filteredTransactions) }
 
     val totalDeposit = filteredTransactions
         .filter { it.type == TypeExtract.DEPOSIT }
@@ -125,6 +130,8 @@ fun HomeScreen(
     val topCategories = totalPorCategoria.entries
         .sortedByDescending { it.value }
         .take(3)
+
+    val hasData = filteredTransactions.isNotEmpty()
 
     var showFilterBottomSheet by remember { mutableStateOf(false) }
     var showActivitiesBottomSheet by remember { mutableStateOf(false) }
@@ -206,113 +213,115 @@ fun HomeScreen(
                         )
                     }
                 }
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    text = stringResource(R.string.home_charts_section_title),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(320.dp)
-                        .padding(horizontal = 8.dp)
-                ) { page ->
-                    ChartPagerCard {
-                        when (page) {
-                            0 -> {
-                                Text(
-                                    text = stringResource(
-                                        R.string.home_spent_by_category,
-                                        filterPeriod.label()
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                SaldoChart(
-                                    transactions = filteredTransactions,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
+                if (hasData) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        text = stringResource(R.string.home_charts_section_title),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(320.dp)
+                            .padding(horizontal = 8.dp)
+                    ) { page ->
+                        ChartPagerCard {
+                            when (page) {
+                                0 -> {
+                                    Text(
+                                        text = stringResource(
+                                            R.string.home_spent_by_category,
+                                            filterPeriod.label()
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    SaldoChart(
+                                        transactions = filteredTransactions,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
 
-                            1 -> {
-                                Text(
-                                    text = stringResource(R.string.home_chart_deposits_vs_payments_title),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                DepositsVsPaymentsBarChart(
-                                    depositTotal = totalDeposit,
-                                    paymentTotal = totalPayment,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
+                                1 -> {
+                                    Text(
+                                        text = stringResource(R.string.home_chart_deposits_vs_payments_title),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    DepositsVsPaymentsBarChart(
+                                        depositTotal = totalDeposit,
+                                        paymentTotal = totalPayment,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
 
-                            else -> {
-                                Text(
-                                    text = stringResource(R.string.home_chart_monthly_comparison_title),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                MonthlyComparisonBarChart(
-                                    data = monthlyTrendData,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                                else -> {
+                                    Text(
+                                        text = stringResource(R.string.home_chart_monthly_comparison_title),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    MonthlyComparisonBarChart(
+                                        data = monthlyTrendData,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
                             }
                         }
                     }
-                }
-                ChartPagerIndicator(
-                    pagerState = pagerState,
-                    pageCount = chartsPageCount,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
+                    ChartPagerIndicator(
+                        pagerState = pagerState,
+                        pageCount = chartsPageCount,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
 
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 160.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 600.dp)
-                        .padding(horizontal = 8.dp, vertical = 8.dp)
-                        .padding(bottom = 48.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    item {
-                        PeriodSummaryCard(
-                            countDeposits = countDeposits,
-                            countPayments = countPayments
-                        )
-                    }
-
-                    maiorCategoria?.let { (category, total) ->
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 160.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 600.dp)
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
+                            .padding(bottom = 48.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         item {
-                            MaiorGastoCard(
-                                categoryName = category.label(),
-                                total = total
+                            PeriodSummaryCard(
+                                countDeposits = countDeposits,
+                                countPayments = countPayments
                             )
                         }
-                    }
 
-                    if (topCategories.isNotEmpty()) {
-                        item {
-                            CategoriasDestaqueCard(topCategories)
+                        maiorCategoria?.let { (category, total) ->
+                            item {
+                                MaiorGastoCard(
+                                    categoryName = category.label(),
+                                    total = total
+                                )
+                            }
                         }
-                    }
 
-                    item {
-                        AtividadesRecentesCard(
-                            count = recentTransactions.size,
-                            onClick = { showActivitiesBottomSheet = true }
-                        )
+                        if (topCategories.isNotEmpty()) {
+                            item {
+                                CategoriasDestaqueCard(topCategories)
+                            }
+                        }
+
+                        item {
+                            AtividadesRecentesCard(
+                                count = recentTransactions.size,
+                                onClick = { showActivitiesBottomSheet = true }
+                            )
+                        }
                     }
                 }
             }
@@ -440,13 +449,18 @@ fun HomeScreen(
 
                                 Button(
                                     onClick = {
-                                        viewModel.setFilterCustomRange(customStartDateStr, customEndDateStr)
+                                        viewModel.setFilterCustomRange(
+                                            customStartDateStr,
+                                            customEndDateStr
+                                        )
                                         showFilterBottomSheet = false
                                     },
                                     enabled = customStartDateStr.isNotEmpty() &&
-                                        customEndDateStr.isNotEmpty() &&
-                                        customStartDateStr <= customEndDateStr,
-                                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                                            customEndDateStr.isNotEmpty() &&
+                                            customStartDateStr <= customEndDateStr,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(48.dp)
                                 ) {
                                     Text(stringResource(R.string.home_filter))
                                 }
@@ -467,12 +481,18 @@ fun HomeScreen(
                                     showStartDatePicker = false
                                 }
                             ) {
-                                Text(stringResource(R.string.home_ok), color = MaterialTheme.colorScheme.primary)
+                                Text(
+                                    stringResource(R.string.home_ok),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { showStartDatePicker = false }) {
-                                Text(stringResource(R.string.home_cancel), color = MaterialTheme.colorScheme.onSurface)
+                                Text(
+                                    stringResource(R.string.home_cancel),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             }
                         }
                     ) {
@@ -492,12 +512,18 @@ fun HomeScreen(
                                     showEndDatePicker = false
                                 }
                             ) {
-                                Text(stringResource(R.string.home_ok), color = MaterialTheme.colorScheme.primary)
+                                Text(
+                                    stringResource(R.string.home_ok),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { showEndDatePicker = false }) {
-                                Text(stringResource(R.string.home_cancel), color = MaterialTheme.colorScheme.onSurface)
+                                Text(
+                                    stringResource(R.string.home_cancel),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             }
                         }
                     ) {

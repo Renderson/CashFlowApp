@@ -13,11 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -113,16 +116,19 @@ fun BankStatementScreen(
             }
 
             if (month.transactions.isNotEmpty()) {
-                Box(
+                Card(
                     modifier = Modifier
-                        .padding(all = 8.dp)
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .clip(shape = RoundedCornerShape(20.dp)),
-                    contentAlignment = Alignment.Center
+                        .padding(all = 4.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(

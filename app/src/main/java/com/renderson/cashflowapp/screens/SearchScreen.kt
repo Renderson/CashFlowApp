@@ -59,7 +59,7 @@ fun SearchScreen(
     val allTransactions = extract?.years?.flatMap { it.months }?.flatMap { it.transactions }
         ?: emptyList()
     var searchQuery by remember { mutableStateOf("") }
-    var selectedPeriod by remember { mutableStateOf(SearchPeriod.ALL) }
+    var selectedPeriod by remember { mutableStateOf(SearchPeriod.DAYS_7) }
 
     Scaffold(
         topBar = {
@@ -118,14 +118,9 @@ fun SearchScreen(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     FilterChip(
-                        selected = selectedPeriod == SearchPeriod.ALL,
-                        onClick = { selectedPeriod = SearchPeriod.ALL },
-                        label = { Text(stringResource(R.string.search_chip_all)) }
-                    )
-                    FilterChip(
-                        selected = selectedPeriod == SearchPeriod.DAYS_30,
-                        onClick = { selectedPeriod = SearchPeriod.DAYS_30 },
-                        label = { Text(stringResource(R.string.search_chip_30_days)) }
+                        selected = selectedPeriod == SearchPeriod.DAYS_7,
+                        onClick = { selectedPeriod = SearchPeriod.DAYS_7 },
+                        label = { Text(stringResource(R.string.search_chip_7_days)) }
                     )
                     FilterChip(
                         selected = selectedPeriod == SearchPeriod.DAYS_15,
@@ -133,9 +128,14 @@ fun SearchScreen(
                         label = { Text(stringResource(R.string.search_chip_15_days)) }
                     )
                     FilterChip(
-                        selected = selectedPeriod == SearchPeriod.DAYS_7,
-                        onClick = { selectedPeriod = SearchPeriod.DAYS_7 },
-                        label = { Text(stringResource(R.string.search_chip_7_days)) }
+                        selected = selectedPeriod == SearchPeriod.DAYS_30,
+                        onClick = { selectedPeriod = SearchPeriod.DAYS_30 },
+                        label = { Text(stringResource(R.string.search_chip_30_days)) }
+                    )
+                    FilterChip(
+                        selected = selectedPeriod == SearchPeriod.ALL,
+                        onClick = { selectedPeriod = SearchPeriod.ALL },
+                        label = { Text(stringResource(R.string.search_chip_all)) }
                     )
                 }
                 val categoryLabels = TransactionCategory.entries.associateWith { it.label() }
